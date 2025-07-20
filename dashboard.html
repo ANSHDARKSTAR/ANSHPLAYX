@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard - AnshPlayX</title>
+  <style>
+    body {
+      background: black;
+      color: #0ff;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+    button {
+      padding: 12px 24px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(45deg, #00ffff, #3333ff);
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎉 Welcome to the AnshPlayX Dashboard</h1>
+  <p>You are successfully logged in!</p>
+  <button onclick="logout()">Logout</button>
+
+  <script>
+    if (localStorage.getItem("isLoggedIn") !== "true") {
+      alert("⚠️ Access Denied. Please log in first.");
+      window.location.href = "index.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>
