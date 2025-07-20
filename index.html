@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WELCOME TO ANSHPLAYX</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(120deg, #000000, #0f0f0f);
-      overflow: hidden;
       color: #fff;
     }
 
@@ -24,9 +27,8 @@
     }
 
     @keyframes pulse {
-      0% { background-color: #000000; }
-      50% { background-color: #111111; }
-      100% { background-color: #000000; }
+      0%, 100% { background-color: #000; }
+      50% { background-color: #111; }
     }
 
     .container {
@@ -34,25 +36,31 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      padding: 20px;
+      min-height: 100vh;
       text-align: center;
     }
 
     h1 {
-      font-size: 3em;
+      font-size: 2.8em;
       color: #0ff;
-      text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 40px #0ff;
+      text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
     }
 
     p {
-      font-size: 1.5em;
+      font-size: 1.2em;
       color: #f0f;
-      margin: 20px 0;
-      text-shadow: 0 0 5px #f0f, 0 0 10px #f0f;
+      margin: 15px 0;
+      text-shadow: 0 0 5px #f0f;
     }
 
     .buttons {
-      margin-top: 30px;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 300px;
     }
 
     .buttons a {
@@ -60,12 +68,12 @@
       color: #fff;
       background-color: transparent;
       border: 2px solid #0ff;
-      padding: 12px 24px;
-      margin: 10px;
+      padding: 12px;
       border-radius: 30px;
       font-size: 1em;
       transition: 0.3s;
       box-shadow: 0 0 10px #0ff;
+      text-align: center;
     }
 
     .buttons a:hover {
@@ -75,17 +83,24 @@
     }
 
     .footer {
-      position: absolute;
-      bottom: 10px;
-      width: 100%;
       text-align: center;
       font-size: 0.9em;
       color: #888;
+      padding: 20px;
     }
 
     .footer a {
       color: #0ff;
       text-decoration: none;
+    }
+
+    @media screen and (max-width: 480px) {
+      h1 {
+        font-size: 2em;
+      }
+      p {
+        font-size: 1em;
+      }
     }
   </style>
 </head>
@@ -106,8 +121,7 @@
   <div class="footer">
     Created by <strong>Ansh</strong> | 
     <a href="#">YouTube</a> | 
-    <a href="#">Discord</a> | 
-    <a href="#">Instagram</a>
+    <a href="#">Discord</a>
   </div>
 </body>
 </html>
