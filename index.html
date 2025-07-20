@@ -1,30 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Welcome to AnshPlayX</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WELCOME TO ANSHPLAYX</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #000000, #0f0f0f);
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .bg-animation {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #111 0%, #000 100%);
+      z-index: -1;
+      animation: pulse 10s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { background-color: #000000; }
+      50% { background-color: #111111; }
+      100% { background-color: #000000; }
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 40px #0ff;
+    }
+
+    p {
+      font-size: 1.5em;
+      color: #f0f;
+      margin: 20px 0;
+      text-shadow: 0 0 5px #f0f, 0 0 10px #f0f;
+    }
+
+    .buttons {
+      margin-top: 30px;
+    }
+
+    .buttons a {
+      text-decoration: none;
+      color: #fff;
+      background-color: transparent;
+      border: 2px solid #0ff;
+      padding: 12px 24px;
+      margin: 10px;
+      border-radius: 30px;
+      font-size: 1em;
+      transition: 0.3s;
+      box-shadow: 0 0 10px #0ff;
+    }
+
+    .buttons a:hover {
+      background-color: #0ff;
+      color: #000;
+      box-shadow: 0 0 20px #0ff;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9em;
+      color: #888;
+    }
+
+    .footer a {
+      color: #0ff;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>🎮 Welcome to AnshPlayX</h1>
-        <p>Your ultimate hub for creativity and gaming fun!</p>
-        <nav>
-            <a href="index.html">Home</a> |
-            <a href="about.html">About</a>
-        </nav>
-    </header>
+  <div class="bg-animation"></div>
 
-    <main>
-        <section>
-            <h2>🚀 Explore the World of AnshPlayX</h2>
-            <p>This website is built and hosted using GitHub Pages. Stay tuned for cool updates, games, and more!</p>
-            <img src="https://via.placeholder.com/600x300?text=AnshPlayX+Banner" alt="AnshPlayX Banner">
-        </section>
-    </main>
+  <div class="container">
+    <h1>WELCOME TO ANSHPLAYX</h1>
+    <p>Explore Mods | Games | Codes</p>
+    
+    <div class="buttons">
+      <a href="#about">About</a>
+      <a href="#download">Download</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
 
-    <footer>
-        <p>© 2025 AnshPlayX. All rights reserved.</p>
-    </footer>
+  <div class="footer">
+    Created by <strong>Ansh</strong> | 
+    <a href="#">YouTube</a> | 
+    <a href="#">Discord</a> | 
+    <a href="#">Instagram</a>
+  </div>
 </body>
 </html>
