@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AnshPlayX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      font-family: 'Orbitron', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2.7em;
+      text-align: center;
+      background: linear-gradient(90deg, #ff00cc, #00ffff, #00ff00, #ffff00, #ff3300);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      margin-bottom: 30px;
+    }
+
+    img.logo {
+      width: 180px;
+      height: auto;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #fff;
+      margin-bottom: 20px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1em;
+      color: white;
+      background: linear-gradient(45deg, #ff00cc, #3333ff, #00ffff);
+      background-size: 300% 300%;
+      animation: pulse 5s ease infinite;
+      cursor: pointer;
+      box-shadow: 0 0 15px #00ffff88, 0 0 30px #ff00cc55;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 25px #00fff088, 0 0 45px #ff00cc77;
+    }
+
+    @keyframes pulse {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .section {
+      display: none;
+      max-width: 700px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #0ff;
+      box-shadow: 0 0 15px #0ff;
+      text-align: center;
+    }
+
+    a {
+      color: #00ffff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    #loginForm {
+      display: none;
+      margin-top: 20px;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin: 5px;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    #loginStatus {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2em;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <img src="https://i.postimg.cc/XqvyWdNd/logo.webp" alt="AnshPlayX Logo" class="logo" />
+  <h1>WELCOME TO ANSHPLAYX</h1>
+
+  <div class="btn-group">
+    <button class="btn" onclick="showSection('about')">About</button>
+    <button class="btn" onclick="showSection('youtube')">YouTube</button>
+    <button class="btn" onclick="toggleLogin()">Coming Features</button>
+    <button class="btn" onclick="showSection('telegram')">Telegram</button>
+  </div>
+
+  <div id="about" class="section">
+    <p>
+      AnshPlayX is a platform led by a talented Android modding expert.  
+      It provides tutorials, mod menus, and tools to help others learn modding safely and creatively.  
+      The goal of AnshPlayX is to inspire, teach, and support people who want to create amazing mod apps.
+    </p>
+  </div>
+
+  <div id="youtube" class="section">
+    <p>
+      📺 Watch modding videos, updates, and tutorials:<br>
+      <a href="https://youtube.com" target="_blank">Visit YouTube Channel</a>
+    </p>
+  </div>
+
+  <div id="telegram" class="section">
+    <p>
+      📢 Join the Telegram channel for latest updates and secret mod menus:<br>
+      <a href="https://t.me/yourchannel" target="_blank">Join Telegram</a>
+    </p>
+  </div>
+
+  <!-- Login Section -->
+  <div id="loginForm" class="section">
+    <p>🔐 Enter Key to Access Coming Features:</p>
+    <input type="text" id="keyInput" placeholder="Enter Access Key"/><br/>
+    <button class="btn" onclick="handleLogin()">Login</button>
+    <div id="loginStatus"></div>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(id).style.display = 'block';
+    }
+
+    function toggleLogin() {
+      document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+      });
+      const form = document.getElementById("loginForm");
+      form.style.display = "block";
+      document.getElementById("loginStatus").textContent = "";
+      document.getElementById("keyInput").value = "";
+    }
+
+    async function handleLogin() {
+      const inputKey = document.getElementById("keyInput").value.trim();
+      const status = document.getElementById("loginStatus");
+
+      try {
+        const response = await fetch("https://raw.githubusercontent.com/ANSHDARKSTAR/anshplayx-keys/refs/heads/main/keys.txt");
+        const keysText = await response.text();
+        const validKeys = keysText.split('\n').map(k => k.trim());
+
+        if (validKeys.includes(inputKey)) {
+          localStorage.setItem("isLoggedIn", "true"); // store login session
+          status.style.color = "lime";
+          status.textContent = "✅ Access Granted! Redirecting...";
+          setTimeout(() => {
+            window.open("dashboard.html", "_blank");
+          }, 1000);
+        } else {
+          status.style.color = "red";
+          status.textContent = "❌ Access Denied. Invalid key.";
+        }
+      } catch (err) {
+        status.style.color = "orange";
+        status.textContent = "⚠️ Error connecting to key server.";
+      }
+    }
+  </script>
+
+</body>
+</html>
