@@ -1,89 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>AnshPlayX Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script>
     if (localStorage.getItem("isLoggedIn") !== "true") {
       window.location.replace("index.html");
     }
   </script>
   <style>
-    body {
-      background: #0f0c29;
-      color: #00ffff;
-      font-family: 'Orbitron', sans-serif;
-      padding: 30px 20px;
-      text-align: center;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');body {
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background-size: 600% 600%;
+  animation: gradientBG 25s ease infinite;
+  color: #ffffff;
+  font-family: 'Orbitron', sans-serif;
+  padding: 30px 20px;
+  text-align: center;
+  overflow-x: hidden;
+}
 
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
+@keyframes gradientBG {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
 
-    h2 {
-      margin-top: 40px;
-      color: #ff00cc;
-    }
+h1 {
+  font-size: 3em;
+  font-weight: bold;
+  color: #00ffc8;
+  text-shadow: 0 0 10px #00ffc8, 0 0 30px #ff00ff;
+  margin-bottom: 5px;
+}
 
-    .card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid #00ffff88;
-      border-radius: 15px;
-      padding: 20px;
-      margin: 15px auto;
-      max-width: 700px;
-      box-shadow: 0 0 15px #00ffff55;
-    }
+h2 {
+  margin-top: 30px;
+  color: #00e6ff;
+  font-size: 1.8em;
+  text-shadow: 0 0 6px #00e6ff;
+}
 
-    a {
-      color: #00ffff;
-      font-weight: bold;
-      text-decoration: none;
-    }
+.card {
+  background: rgba(20, 20, 30, 0.8);
+  border: 1px solid #00ffe0;
+  border-radius: 18px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 750px;
+  box-shadow: 0 0 20px #00ffee33, 0 0 40px #ff00ff33;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-    a:hover {
-      text-decoration: underline;
-    }
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 0 35px #00ffe0aa, 0 0 60px #ff00ffaa;
+}
 
-    button {
-      margin-top: 40px;
-      padding: 12px 28px;
-      font-size: 1em;
-      background: linear-gradient(45deg, #00ffff, #3333ff);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-    }
+a {
+  color: #00ffee;
+  font-weight: bold;
+  text-decoration: none;
+}
 
-    button:hover {
-      background: linear-gradient(45deg, #ff00cc, #00ffff);
-    }
+a:hover {
+  text-decoration: underline;
+}
 
-    #searchInput {
-      padding: 12px;
-      font-size: 1em;
-      width: 90%;
-      max-width: 500px;
-      margin: 20px auto;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-    }
+button {
+  margin-top: 40px;
+  padding: 12px 28px;
+  font-size: 1em;
+  background: linear-gradient(45deg, #00ffff, #7a00ff);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.4s ease, transform 0.3s ease;
+}
 
-    .hidden {
-      display: none;
-    }
-  </style>
-</head>
-<body>
+button:hover {
+  background: linear-gradient(45deg, #ff00cc, #00ffff);
+  transform: scale(1.05);
+}
 
-  <h1>🎉 Welcome to AnshPlayX Modding Hub</h1>
-  <p>You are now inside the secure dashboard.</p>
+#searchInput {
+  padding: 12px;
+  font-size: 1em;
+  width: 90%;
+  max-width: 500px;
+  margin: 20px auto;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background: #1f1f2e;
+  color: #ffffff;
+  box-shadow: 0 0 10px #00ffc8aa;
+}
 
-<div id="maintenanceBanner" style="
+.hidden {
+  display: none;
+}
+
+.sub-text {
+  color: #cccccc;
+  margin-bottom: 30px;
+  font-size: 1.1em;
+}
+
+#maintenanceBanner {
   background: linear-gradient(45deg, #ff0000, #ff6600);
   color: white;
   text-align: center;
@@ -91,56 +116,75 @@
   font-weight: bold;
   font-family: 'Orbitron', sans-serif;
   position: relative;
-  z-index: 999;
-">
-  🚧 AnshPlayX is under maintenance. Features may be limited temporarily.
-  <span onclick="document.getElementById('maintenanceBanner').style.display='none'" style="
-    position: absolute;
-    right: 15px;
-    top: 8px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: normal;
-  ">&times;</span>
-</div>
+}
 
-  <!-- 🔍 Search Input -->
-  <input type="text" id="searchInput" placeholder="Search tutorials, tools, downloads..." oninput="searchContent()" />
+#maintenanceBanner span {
+  position: absolute;
+  right: 15px;
+  top: 8px;
+  cursor: pointer;
+  font-size: 18px;
+}
 
-  <!-- 📚 Tutorials -->
-  <div class="card tutorial" data-keywords="tutorials youtube android modding">
-    <h2>📚 Modding Tutorials</h2>
+#loader {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: #0f0c29;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #00ffff;
+  border-top: 6px solid #ff00cc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+  </style>
+</head>
+<body>
+  <div id="loader"><div class="spinner"></div></div>  <h1><i class="fas fa-gamepad"></i> Welcome to AnshPlayX</h1>
+  <p class="sub-text">Your personal Android modding dashboard</p>  <div id="maintenanceBanner">
+    🚧 AnshPlayX is under maintenance. Features may be limited temporarily.
+    <span onclick="document.getElementById('maintenanceBanner').style.display='none'">&times;</span>
+  </div>  <input type="text" id="searchInput" placeholder="Search tutorials, tools, downloads..." oninput="searchContent()" />  <div class="card tutorial" data-keywords="tutorials youtube android modding">
+    <h2><i class="fas fa-book-open"></i> Modding Tutorials</h2>
     <p>Step-by-step guides to help you learn Android modding.</p>
     <a href="https://www.youtube.com/@anshplayx" target="_blank">Watch Tutorials on YouTube</a>
-  </div>
-
-  <!-- 💾 Source Code -->
-  <div class="card tutorial" data-keywords="source github c++ android projects">
-    <h2>💾 Source Codes</h2>
+  </div>  <div class="card tutorial" data-keywords="source github c++ android projects">
+    <h2><i class="fas fa-code"></i> Source Codes</h2>
     <p>Explore and download working mod menu source codes.</p>
     <a href="https://github.com/ANSHDARKSTAR" target="_blank">Visit GitHub Repo</a>
-  </div>
-
-  <!-- 📦 Mod Project Downloads -->
-  <div class="card tutorial" data-keywords="download projects source apk zip">
-    <h2>📦 Mod Projects to Download</h2>
+  </div>  <div class="card tutorial" data-keywords="download projects source apk zip">
+    <h2><i class="fas fa-download"></i> Mod Projects to Download</h2>
     <ul style="list-style: none; padding-left: 0;">
       <li><a href="https://example.com/modmenu1.zip" download>🔹 ESP Mod Menu v1</a></li>
       <li><a href="https://example.com/modmenu2.zip" download>🔹 Speed Hack + Fly Mod</a></li>
       <li><a href="https://example.com/tutorial-pack.zip" download>🔹 Complete Beginner Pack</a></li>
     </ul>
-  </div>
-
-  <!-- 🎓 Learning Resources -->
-  <div class="card tutorial" data-keywords="learn android c++ development tools">
-    <h2>🎓 Learning Resources</h2>
+  </div>  <div class="card tutorial" data-keywords="learn android c++ development tools">
+    <h2><i class="fas fa-graduation-cap"></i> Learning Resources</h2>
     <p>Get tools, libraries, and documentation to enhance your skills.</p>
     <a href="https://developer.android.com/" target="_blank">Android Developer Docs</a><br>
     <a href="https://learncpp.com/" target="_blank">Learn C++</a>
-  </div>
-
-  <!-- 🚪 Logout -->
-  <button onclick="logout()">Logout</button>
+  </div>  <div class="card" id="privateUpdate">
+    <h2><i class="fas fa-lock"></i> Private Update</h2>
+    <p>Check for special updates and changelogs for exclusive features.</p>
+    <a href="https://anshdarkstar.github.io/ANSHPLAYX/updates.html" target="_blank">
+      <i class="fas fa-arrow-circle-right"></i> View Update Details
+    </a>
+  </div><button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
 
   <script>
     function logout() {
@@ -161,7 +205,9 @@
         }
       });
     }
-  </script>
 
-</body>
-</html>
+    window.addEventListener('load', () => {
+      document.getElementById('loader').style.display = 'none';
+    });
+  </script></body>
+  </html>
