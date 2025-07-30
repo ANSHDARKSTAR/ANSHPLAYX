@@ -1,170 +1,176 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AnshPlayX</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #1e1e2f, #292946, #1c1c2b);
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
 
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      font-family: 'Orbitron', sans-serif;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 40px 20px;
-    }
+h1 {
+  font-size: 2.7em;
+  text-align: center;
+  background: linear-gradient(90deg, #00ffff, #ff00cc, #00ff00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: neonTitle 4s linear infinite;
+  font-weight: 800;
+  margin-bottom: 30px;
+}
 
-    h1 {
-      font-size: 2.7em;
-      text-align: center;
-      background: linear-gradient(90deg, #ff00cc, #00ffff, #00ff00, #ffff00, #ff3300);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 800;
-      margin-bottom: 30px;
-    }
+@keyframes neonTitle {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
 
-    img.logo {
-      width: 180px;
-      height: auto;
-      border-radius: 20px;
-      box-shadow: 0 0 20px #fff;
-      margin-bottom: 20px;
-    }
+img.logo {
+  width: 180px;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 0 0 20px #fff;
+  margin-bottom: 20px;
+}
 
-    .btn-group {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 30px;
-    }
+.btn-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 30px;
+}
 
-    .btn {
-      padding: 14px 28px;
-      border: none;
-      border-radius: 14px;
-      font-size: 1em;
-      color: white;
-      background: linear-gradient(45deg, #ff00cc, #3333ff, #00ffff);
-      background-size: 300% 300%;
-      animation: pulse 5s ease infinite;
-      cursor: pointer;
-      box-shadow: 0 0 15px #00ffff88, 0 0 30px #ff00cc55;
-      transition: all 0.3s ease;
-    }
+.btn {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 14px;
+  font-size: 1em;
+  color: white;
+  background: linear-gradient(45deg, #ff00cc, #3333ff, #00ffff);
+  background-size: 300% 300%;
+  animation: pulse 5s ease infinite;
+  cursor: pointer;
+  box-shadow: 0 0 15px #00ffff88, 0 0 30px #ff00cc55;
+  transition: all 0.3s ease;
+}
 
-    .btn:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 25px #00fff088, 0 0 45px #ff00cc77;
-    }
+.btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px #00fff088, 0 0 45px #ff00cc77;
+}
 
-    @keyframes pulse {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+@keyframes pulse {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-    .section {
-      display: none;
-      max-width: 700px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 25px;
-      border-radius: 12px;
-      border: 1px solid #0ff;
-      box-shadow: 0 0 15px #0ff;
-      text-align: center;
-    }
+.section {
+  display: none;
+  max-width: 700px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #0ff;
+  box-shadow: 0 0 15px #0ff;
+  text-align: center;
+  margin-bottom: 30px;
+}
 
-    a {
-      color: #00ffff;
-      text-decoration: none;
-      font-weight: bold;
-    }
+a {
+  color: #00ffff;
+  text-decoration: none;
+  font-weight: bold;
+}
 
-    a:hover {
-      text-decoration: underline;
-    }
+a:hover {
+  text-decoration: underline;
+}
 
-    #loginForm {
-      display: none;
-      margin-top: 20px;
-    }
+input, textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin: 5px;
+  font-family: 'Orbitron', sans-serif;
+  width: 90%;
+  max-width: 400px;
+}
 
-    input {
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      margin: 5px;
-      font-family: 'Orbitron', sans-serif;
-    }
+#loginStatus {
+  margin-top: 10px;
+  font-weight: bold;
+}
 
-    #loginStatus {
-      margin-top: 10px;
-      font-weight: bold;
-    }
+.visitor {
+  margin: 10px;
+  font-size: 1.1em;
+  color: #00ffff;
+}
 
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 2em;
-      }
+#status {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #0f0;
+}
 
-      .btn {
-        padding: 12px 20px;
-        font-size: 0.9em;
-      }
-    }
+@media (max-width: 600px) {
+  h1 { font-size: 2em; }
+  .btn { padding: 12px 20px; font-size: 0.9em; }
+}
+
   </style>
 </head>
-<body>
-
-  <img src="https://i.postimg.cc/XqvyWdNd/logo.webp" alt="AnshPlayX Logo" class="logo" />
-  <h1>WELCOME TO ANSHPLAYX</h1>
-
-  <div class="btn-group">
-    <button class="btn" onclick="showSection('about')">About</button>
-    <button class="btn" onclick="showSection('youtube')">YouTube</button>
-    <button class="btn" onclick="toggleLogin()">Coming Features</button>
-    <button class="btn" onclick="showSection('telegram')">Telegram</button>
-  </div>
-
-  <div id="about" class="section">
+<body>  <img src="https://i.postimg.cc/XqvyWdNd/logo.webp" alt="AnshPlayX Logo" class="logo" />
+  <h1>WELCOME TO ANSHPLAYX</h1>  <div class="visitor">
+    <i class="fas fa-eye"></i> Visitors: <span id="visitorCount">Loading...</span>
+  </div>  <div class="btn-group">
+    <button class="btn" onclick="showSection('about')"><i class="fas fa-info-circle"></i> About</button>
+    <button class="btn" onclick="showSection('youtube')"><i class="fab fa-youtube"></i> YouTube</button>
+    <button class="btn" onclick="toggleLogin()"><i class="fas fa-lock"></i> Coming Features</button>
+    <button class="btn" onclick="showSection('telegram')"><i class="fab fa-telegram"></i> Telegram</button>
+    <button class="btn" onclick="showSection('feedback')"><i class="fas fa-envelope"></i> Feedback</button>
+  </div>  <div id="about" class="section">
     <p>
       AnshPlayX is a platform led by a talented Android modding expert.  
       It provides tutorials, mod menus, and tools to help others learn modding safely and creatively.  
       The goal of AnshPlayX is to inspire, teach, and support people who want to create amazing mod apps.
     </p>
-  </div>
-
-  <div id="youtube" class="section">
+  </div>  <div id="youtube" class="section">
     <p>
       📺 Watch modding videos, updates, and tutorials:<br>
       <a href="https://youtube.com" target="_blank">Visit YouTube Channel</a>
     </p>
-  </div>
-
-  <div id="telegram" class="section">
+  </div>  <div id="telegram" class="section">
     <p>
       📢 Join the Telegram channel for latest updates and secret mod menus:<br>
       <a href="https://t.me/yourchannel" target="_blank">Join Telegram</a>
     </p>
-  </div>
-
-  <!-- Login Section -->
-  <div id="loginForm" class="section">
+  </div>  <div id="feedback" class="section">
+    <p>📬 We’d love your feedback!</p>
+    <form id="feedbackForm">
+      <input type="text" name="name" placeholder="Your Name" required><br>
+      <input type="email" name="email" placeholder="Your Email" required><br>
+      <textarea name="message" placeholder="Your Feedback" rows="5" required></textarea><br>
+      <button class="btn" type="submit">Send</button>
+      <div id="status"></div>
+    </form>
+  </div>  <div id="loginForm" class="section">
     <p>🔐 Enter Key to Access Coming Features:</p>
     <input type="text" id="keyInput" placeholder="Enter Access Key"/><br/>
     <button class="btn" onclick="handleLogin()">Login</button>
     <div id="loginStatus"></div>
-  </div>
-
-  <script>
+  </div>  <script>
     function showSection(id) {
       document.querySelectorAll('.section').forEach(section => {
         section.style.display = 'none';
@@ -186,17 +192,23 @@
       const inputKey = document.getElementById("keyInput").value.trim();
       const status = document.getElementById("loginStatus");
 
+      if (!inputKey) {
+        status.style.color = "orange";
+        status.textContent = "⚠️ Please enter a key.";
+        return;
+      }
+
       try {
-        const response = await fetch("https://raw.githubusercontent.com/ANSHDARKSTAR/anshplayx-keys/refs/heads/main/keys.txt");
+        const response = await fetch("https://raw.githubusercontent.com/ANSHDARKSTAR/anshplayx-keys/main/keys.txt");
         const keysText = await response.text();
         const validKeys = keysText.split('\n').map(k => k.trim());
 
         if (validKeys.includes(inputKey)) {
-          localStorage.setItem("isLoggedIn", "true"); // store login session
+          localStorage.setItem("isLoggedIn", "true");
           status.style.color = "lime";
           status.textContent = "✅ Access Granted! Redirecting...";
           setTimeout(() => {
-            window.open("dashboard.html", "_blank");
+            window.location.href = "https://anshdarkstar.github.io/ANSHPLAYX/dashboard.html";
           }, 1000);
         } else {
           status.style.color = "red";
@@ -207,7 +219,35 @@
         status.textContent = "⚠️ Error connecting to key server.";
       }
     }
-  </script>
 
-</body>
-</html>
+    // Dummy visitor counter
+    document.getElementById("visitorCount").textContent = Math.floor(Math.random() * 500 + 100);
+
+    // Google Script feedback form submission
+    document.getElementById("feedbackForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const status = document.getElementById("status");
+
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbxEEKZfbrx_0zFc1qhkKDj-1tUVJxeoIKzgnBUnNvcz9ma2LZjM7xVFaNUCCPLCWQ-W/exec", {
+          method: "POST",
+          body: formData
+        });
+
+        if (response.ok) {
+          status.textContent = "✅ Message sent!";
+          status.style.color = "lime";
+          form.reset();
+        } else {
+          status.textContent = "❌ Failed to send. Try again later.";
+          status.style.color = "red";
+        }
+      } catch (err) {
+        status.textContent = "❌ Error occurred while sending.";
+        status.style.color = "red";
+      }
+    });
+  </script></body>
+  </html>
