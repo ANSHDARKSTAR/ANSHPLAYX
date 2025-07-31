@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ansh AI - Your All-in-One Assistant</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #000000, #1a1a2e);
+      color: #00ffff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      font-size: 2em;
+      font-weight: bold;
+      background: linear-gradient(90deg, #00ffff, #ff00ff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    #chatbox {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: #111;
+      border-top: 2px solid #00ffff;
+    }
+    .msg {
+      margin-bottom: 15px;
+    }
+    .user {
+      color: #00ff88;
+    }
+    .ai {
+      color: #ff33ff;
+    }
+    #inputArea {
+      display: flex;
+      border-top: 1px solid #00ffff;
+      background: #000;
+    }
+    #prompt {
+      flex: 1;
+      padding: 12px;
+      font-size: 1em;
+      background: #111;
+      border: none;
+      color: #0ff;
+      outline: none;
+    }
+    #sendBtn {
+      background: #00ffff;
+      border: none;
+      padding: 12px 20px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>Ansh AI - Chat with Power</header>
+
+<div id="chatbox"></div>
+
+<div id="inputArea">
+  <input type="text" id="prompt" placeholder="Ask anything..." />
+  <button id="sendBtn">Send</button>
+</div>
+
+<script>
+  const API_KEY = "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"/ <-- replace this
+  const chatbox = document.getElementById("chatbox");
+  const promptInput = document.getElementById("prompt");
+
+  async function askGPT(prompt) {
+    const msg = { role: "user", content: prompt };
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + API_KEY
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [msg]
+      })
+    });
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  }
+
+  document.getElementById("sendBtn").onclick = async () => {
+    const prompt = promptInput.value.trim();
+    if (!prompt) return;
+    appendMessage("You", prompt, "user");
+    promptInput.value = "Thinking...";
+    promptInput.disabled = true;
+
+    try {
+      const reply = await askGPT(prompt);
+      appendMessage("Ansh AI", reply, "ai");
+    } catch (e) {
+      appendMessage("Ansh AI", "❌ Error: Invalid API key or network issue.", "ai");
+    }
+
+    promptInput.value = "";
+    promptInput.disabled = false;
+    promptInput.focus();
+  };
+
+  function appendMessage(sender, text, cls) {
+    const div = document.createElement("div");
+    div.className = "msg " + cls;
+    div.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    chatbox.appendChild(div);
+    chatbox.scrollTop = chatbox.scrollHeight;
+  }
+</script>
+
+</body>
+</html>
