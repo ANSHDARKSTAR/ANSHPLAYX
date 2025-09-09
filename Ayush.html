@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ansh Ultra Search v7</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+body {
+  margin:0; padding:0;
+  font-family:"Segoe UI",sans-serif;
+  background: linear-gradient(135deg,#0d0d0d,#1a1a2e);
+  color:white;
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  perspective:1500px;
+}
+h1 {
+  font-size:32px;
+  margin-bottom:20px;
+  background: linear-gradient(90deg,#0ff,#f0f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 15px rgba(0,255,200,0.6);
+}
+.search-box {
+  display:flex; align-items:center;
+  background:#222; border-radius:40px;
+  padding:10px 20px;
+  box-shadow:0 0 25px rgba(0,255,200,0.6);
+  width:90%; max-width:600px;
+}
+.search-box input {
+  flex:1; border:none; outline:none; 
+  background:transparent; color:white;
+  font-size:18px; padding:10px;
+}
+.search-box button {
+  background:none; border:none; color:#0ff;
+  font-size:22px; cursor:pointer;
+  transition:transform 0.2s;
+}
+.search-box button:hover {transform:scale(1.2);}
+#results {
+  margin-top:30px; max-width:90%; height:60vh;
+  border-radius:20px; overflow:hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.25,0.8,0.25,1), opacity 0.5s;
+  opacity:0;
+  transform: rotateX(90deg) scale(0.7);
+  display:flex; justify-content:center; align-items:center;
+  font-size:20px; background:rgba(0,0,0,0.8);
+  padding:20px; text-align:center;
+}
+#results.show {opacity:1; transform: rotateX(0deg) scale(1);}
+.footer {
+  margin-top:40px;
+  font-size:14px;
+  color:#ccc;
+  text-align:center;
+}
+.footer span {
+  color:#0ff;
+}
+</style>
+</head>
+<body>
+
+<h1><i class="fa-solid fa-magnifying-glass"></i> Ansh Ultra Search v7</h1>
+
+<div class="search-box">
+  <input type="text" id="query" placeholder="Type or speak to search...">
+  <button onclick="doSearch()"><i class="fa-solid fa-search"></i></button>
+  <button onclick="startMic()"><i class="fa-solid fa-microphone"></i></button>
+</div>
+
+<div id="results">Your results will appear here...</div>
+
+<div class="footer">
+  Made with <i class="fa-solid fa-heart" style="color:red;"></i> by <span>Ansh</span>
+</div>
+
+<script>
+const results = document.getElementById("results");
+
+function show3DAnimation(message){
+  results.innerHTML = message;
+  results.classList.remove('show');
+  setTimeout(()=> results.classList.add('show'), 50);
+}
+
+function doSearch(){
+  const q = document.getElementById("query").value.trim().toLowerCase();
+  if(!q){ show3DAnimation("❌ Please enter something."); return;}
+
+  // 🔥 Custom ANSHPLAYX response
+  if(q.includes("anshplayx")){
+    show3DAnimation("<b> I’m Ayush Singh, the creator of ANSHPLAYX 😎 ANSHPLAYX is my personal platform where I build, design, and experiment with awesome web projects, search engines, and interactive apps. I love coding, exploring new tech, and making digital experiences more fun and engaging.This project showcases my creativity and passion for development. Stay tuned, more cool stuff is coming! 🚀</b>");
+    return;
+  }
+
+  // WhatsApp message
+  if(q.startsWith("open whatsapp and send")){
+    let text = q.replace("open whatsapp and send","").trim();
+    let parts = text.split(" to ");
+    if(parts.length === 2){
+      let msg = encodeURIComponent(parts[0].trim());
+      let number = parts[1].replace(/\D/g,"");
+      window.open(`https://wa.me/${number}?text=${msg}`,'_blank');
+      show3DAnimation(`📩 WhatsApp message: <b>${parts[0]}</b> to <b>${parts[1]}</b>`);
+      return;
+    } else { show3DAnimation("⚠️ Format: open whatsapp and send MESSAGE to NUMBER"); return; }
+  }
+
+  // Instagram search
+  if(q.startsWith("open instagram and search")){
+    let term = q.replace("open instagram and search","").trim();
+    window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(term)}/`,'_blank');
+    show3DAnimation(`📸 Instagram search: <b>${term}</b>`);
+    return;
+  }
+
+  // YouTube search
+  if(q.startsWith("open youtube and search")){
+    let term = q.replace("open youtube and search","").trim();
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`,'_blank');
+    show3DAnimation(`🎬 YouTube search: <b>${term}</b>`);
+    return;
+  }
+
+  // Google search
+  if(q.startsWith("open google and search")){
+    let term = q.replace("open google and search","").trim();
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(term)}`,'_blank');
+    show3DAnimation(`🔍 Google search: <b>${term}</b>`);
+    return;
+  }
+
+  // Normal open app
+  if(q.startsWith("open ")) { openApp(q.replace("open ","")); return; }
+
+  // Fallback
+  show3DAnimation(`🔎 You searched for: <b>${q}</b>`);
+}
+
+function openApp(app){
+  let url = "";
+  switch(app){
+    case "youtube": url="https://youtube.com"; break;
+    case "facebook": url="https://facebook.com"; break;
+    case "twitter": url="https://twitter.com"; break;
+    case "google": url="https://google.com"; break;
+    case "whatsapp": url="https://web.whatsapp.com"; break;
+    case "instagram": url="https://www.instagram.com"; break;
+    default: url=""; break;
+  }
+  if(url){
+    show3DAnimation(`Opening <b>${app}</b>...`);
+    setTimeout(()=> window.open(url,'_blank'), 600);
+  } else show3DAnimation(`⚠️ App ${app} not found`);
+}
+
+// Mic
+function startMic(){
+  if(!('webkitSpeechRecognition' in window)){alert("❌ Speech recognition not supported"); return;}
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-US"; recognition.interimResults = false; recognition.maxAlternatives = 1;
+  recognition.start();
+  recognition.onresult = (event)=>{document.getElementById("query").value = event.results[0][0].transcript; doSearch();}
+  recognition.onerror = (event)=>{alert("⚠️ Mic Error: "+event.error);}
+}
+</script>
+</body>
+</html>
