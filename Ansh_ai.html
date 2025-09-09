@@ -1,130 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ansh AI - Your All-in-One Assistant</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #000000, #1a1a2e);
-      color: #00ffff;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      text-align: center;
-      padding: 20px;
-      font-size: 2em;
-      font-weight: bold;
-      background: linear-gradient(90deg, #00ffff, #ff00ff);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-    #chatbox {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      background: #111;
-      border-top: 2px solid #00ffff;
-    }
-    .msg {
-      margin-bottom: 15px;
-    }
-    .user {
-      color: #00ff88;
-    }
-    .ai {
-      color: #ff33ff;
-    }
-    #inputArea {
-      display: flex;
-      border-top: 1px solid #00ffff;
-      background: #000;
-    }
-    #prompt {
-      flex: 1;
-      padding: 12px;
-      font-size: 1em;
-      background: #111;
-      border: none;
-      color: #0ff;
-      outline: none;
-    }
-    #sendBtn {
-      background: #00ffff;
-      border: none;
-      padding: 12px 20px;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis Lite Web</title>
+<style>
+  body { background: #111; color: #0f0; font-family: Arial, sans-serif; text-align:center; padding:20px; }
+  h1 { color:#0ff; }
+  button { margin:5px; padding:10px 20px; font-size:16px; cursor:pointer; background:#222; color:#0f0; border:1px solid #0f0; border-radius:5px; }
+  input { padding:5px; font-size:16px; width:200px; }
+  #output { margin-top:15px; font-size:16px; min-height:50px; }
+  #video { border:2px solid #0f0; margin-top:10px; display:none; width:480px; height:360px; }
+</style>
 </head>
 <body>
 
-<header>Ansh AI - Chat with Power</header>
+<h1>Jarvis Lite Web</h1>
 
-<div id="chatbox"></div>
-
-<div id="inputArea">
-  <input type="text" id="prompt" placeholder="Ask anything..." />
-  <button id="sendBtn">Send</button>
+<div>
+  <button id="voiceBtn">🎤 Speak Command</button>
+  <button id="cameraBtn">📷 Start Camera</button>
+  <button id="stopCamBtn">🛑 Stop Camera</button>
+</div>
+<div style="margin-top:10px;">
+  <input id="typedCmd" placeholder="Type command here" />
+  <button id="sendCmd">▶️ Send</button>
 </div>
 
+<div id="output">Jarvis ready...</div>
+<video id="video" autoplay muted></video>
+
+<!-- TensorFlow.js -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
 <script>
-  const API_KEY = "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"/ <-- replace this
-  const chatbox = document.getElementById("chatbox");
-  const promptInput = document.getElementById("prompt");
+let output = document.getElementById("output");
+let video = document.getElementById("video");
+let model, stream;
 
-  async function askGPT(prompt) {
-    const msg = { role: "user", content: prompt };
+// ------------------ Text-to-Speech ------------------
+function speak(text) {
+    if (!text) return;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-US';
+    speechSynthesis.speak(utter);
+}
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + API_KEY
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [msg]
-      })
-    });
+// ------------------ Voice Recognition ------------------
+async function voiceCommand() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        speak("Your browser does not support speech recognition.");
+        return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.start();
 
-    const data = await response.json();
-    return data.choices[0].message.content;
-  }
+    recognition.onresult = (event) => {
+        const cmd = event.results[0][0].transcript.toLowerCase();
+        output.innerHTML = "You said: " + cmd;
+        handleCommand(cmd);
+    };
+    recognition.onerror = (e) => {
+        speak("Voice recognition error.");
+        console.error(e);
+    };
+}
 
-  document.getElementById("sendBtn").onclick = async () => {
-    const prompt = promptInput.value.trim();
-    if (!prompt) return;
-    appendMessage("You", prompt, "user");
-    promptInput.value = "Thinking...";
-    promptInput.disabled = true;
+document.getElementById("voiceBtn").onclick = voiceCommand;
 
+// ------------------ Wikipedia Search ------------------
+async function wikiSearch(query) {
     try {
-      const reply = await askGPT(prompt);
-      appendMessage("Ansh AI", reply, "ai");
+        const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (data.extract) {
+            speak(data.extract);
+            output.innerHTML += "<br><b>Wiki:</b> " + data.extract;
+        } else {
+            speak("I could not find anything.");
+            output.innerHTML += "<br>No results found.";
+        }
     } catch (e) {
-      appendMessage("Ansh AI", "❌ Error: Invalid API key or network issue.", "ai");
+        speak("Error fetching Wikipedia.");
+        console.error(e);
+    }
+}
+
+// ------------------ Camera / Object Detection ------------------
+async function startCamera() {
+    if (!stream) {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video:true });
+            video.srcObject = stream;
+        } catch(e) {
+            speak("Camera access denied or not found.");
+            console.error(e);
+            return;
+        }
+    }
+    video.style.display = "block";
+    if (!model) model = await cocoSsd.load();
+    detectFrame();
+}
+
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+    video.style.display = "none";
+    output.innerHTML += "<br>Camera stopped.";
+}
+
+async function detectFrame() {
+    if (!stream || video.paused || video.ended) return;
+    const predictions = await model.detect(video);
+    if (predictions.length > 0) {
+        const detected = predictions.map(p => p.class).join(", ");
+        output.innerHTML = "Detected: " + detected;
+        speak("I see " + detected);
+    }
+    requestAnimationFrame(detectFrame);
+}
+
+document.getElementById("cameraBtn").onclick = startCamera;
+document.getElementById("stopCamBtn").onclick = stopCamera;
+
+// ------------------ Command Handling ------------------
+async function handleCommand(cmd) {
+    if (!cmd) return;
+
+    if (cmd.includes("time")) {
+        const now = new Date().toLocaleString();
+        speak("The current time is " + now);
+        output.innerHTML += "<br>Time: " + now;
+        return;
     }
 
-    promptInput.value = "";
-    promptInput.disabled = false;
-    promptInput.focus();
-  };
+    if (cmd.startsWith("search ") || cmd.includes("who is") || cmd.includes("what is")) {
+        const query = cmd.replace(/search |who is |what is /, "").trim();
+        if (query) await wikiSearch(query);
+        return;
+    }
 
-  function appendMessage(sender, text, cls) {
-    const div = document.createElement("div");
-    div.className = "msg " + cls;
-    div.innerHTML = `<strong>${sender}:</strong> ${text}`;
-    chatbox.appendChild(div);
-    chatbox.scrollTop = chatbox.scrollHeight;
-  }
+    if (cmd.includes("camera") || cmd.includes("detect")) {
+        await startCamera();
+        return;
+    }
+
+    if (cmd.includes("exit") || cmd.includes("bye")) {
+        speak("Goodbye!");
+        output.innerHTML += "<br>Jarvis exiting...";
+        stopCamera();
+        return;
+    }
+
+    speak("I heard: " + cmd + ". Try commands like search <topic>, time, or camera.");
+}
+
+// ------------------ Typed Input ------------------
+document.getElementById("sendCmd").onclick = () => {
+    const cmd = document.getElementById("typedCmd").value.toLowerCase();
+    output.innerHTML = "Typed command: " + cmd;
+    handleCommand(cmd);
+    document.getElementById("typedCmd").value = "";
+};
+
 </script>
-
 </body>
-</html>
+  </html>
