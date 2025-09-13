@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.16.105/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.9.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.90/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 <style>
   :root {
@@ -28,7 +28,6 @@
     display: flex;
     justify-content: center;
     padding: 15px;
-    /* FIX: Add overflow-x to prevent multiple instances on some browsers */
     overflow-x: hidden;
   }
   .app {
@@ -127,6 +126,16 @@
     line-height: 1.5;
     white-space: pre-wrap;
     animation: slideIn 0.3s ease-out;
+  }
+  .msg.image-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .msg.image-msg img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
   }
   .msg strong {
     display: block;
@@ -238,7 +247,6 @@
     max-width: 500px;
     width: 90%;
     position: relative;
-    /* Removed transform for better mobile responsiveness */
     transition: opacity 0.3s ease;
   }
   .modal-overlay.active .modal-content {
@@ -269,10 +277,92 @@
   .modal-close-btn:hover {
     color: var(--primary);
   }
+
+  /* SPLASH SCREEN CSS */
+  #splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--text);
+    z-index: 999;
+    opacity: 1;
+    transition: opacity 1s ease-out;
+  }
+
+  #splash-screen.fade-out {
+    opacity: 0;
+    pointer-events: none; /* Make it unclickable after fading */
+  }
+
+  #jarvis-logo-img-splash { /* Renamed ID to avoid conflict with potential other image elements */
+    width: 150px; /* Adjust size as needed */
+    height: auto;
+    animation: pulse 2s infinite ease-in-out;
+    margin-bottom: 20px; /* Space between image and text */
+  }
+
+  #jarvis-text-splash { /* Renamed ID */
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 5px;
+    margin-top: 10px;
+    color: var(--text);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+  }
+
+  #jarvis-subtext-splash { /* Renamed ID */
+    font-size: 1.2rem;
+    color: var(--primary);
+    margin-top: -15px;
+    text-shadow: 0 0 5px rgba(85, 255, 177, 0.3);
+  }
+  
+  .loading-bar {
+    width: 250px;
+    height: 5px;
+    background-color: #3b82f6;
+    border-radius: 5px;
+    margin-top: 25px;
+    overflow: hidden;
+  }
+
+  .loading-progress {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #5affb1, #3b82f6);
+    animation: loading 3s ease-in-out forwards;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @keyframes loading {
+    0% { width: 0; }
+    100% { width: 100%; }
+  }
 </style>
 </head>
 <body>
-<div class="app">
+
+<div id="splash-screen">
+    <img id="jarvis-logo-img-splash" src="https://i.postimg.cc/QtVzsvSy/1757771852549.png" alt="Jarvis AI Logo">
+    <div id="jarvis-text-splash">JARVIS</div>
+    <div id="jarvis-subtext-splash">AI</div>
+    <div class="loading-bar">
+        <div class="loading-progress"></div>
+    </div>
+</div>
+
+<div class="app" id="main-app-container" style="display:none;">
   <header>
     <h1><i class="fas fa-robot"></i> Jarvis AI</h1>
     <div class="three-dot">
@@ -285,6 +375,11 @@
         <button id="voiceBtn"><i class="fas fa-microphone"></i> Speak</button>
         <button id="imageUploadBtn">Upload Image</button>
         <button id="aboutBtn">About Jarvis</button>
+        <hr style="margin: 8px 0; border-color: #3b82f633;">
+        <span class="muted" style="display:block; margin: 0 0 8px 10px;">Language</span>
+        <button data-lang="en-US">English</button>
+        <button data-lang="hi-IN">हिन्दी</button>
+        <button data-lang="es-ES">Español</button>
       </div>
     </div>
   </header>
@@ -348,6 +443,8 @@ const startCamMenuBtn=document.getElementById('startCamMenuBtn');
 const imageUploadBtn=document.getElementById('imageUploadBtn');
 const aboutBtn=document.getElementById('aboutBtn');
 
+const languageButtons = menuEl.querySelectorAll('[data-lang]');
+
 const aboutModal=document.getElementById('aboutModal');
 const modalCloseBtn=document.querySelector('.modal-close-btn');
 
@@ -364,6 +461,28 @@ if (localStorage.getItem('jarvisChatHistory')) {
 
 let recognition=null,micActive=false,runningCamera=false,useBackCamera=true,cocoModel=null,cocoActive=false,currentStream=null,lastVisionText="",aiMode="on-demand";
 
+// New: Language support
+let currentLanguage = 'en-US'; // Default language
+
+const placeholders = {
+    'en-US': 'Ask me anything...',
+    'hi-IN': 'Mujhse kuch bhi pucho...',
+    'es-ES': 'Pregúntame cualquier cosa...'
+};
+
+function changeLanguage(langCode) {
+    currentLanguage = langCode;
+    userInput.placeholder = placeholders[langCode] || placeholders['en-US'];
+    if (recognition) {
+        recognition.lang = langCode;
+    }
+    appendMessage("Jarvis", `Language changed to: ${langCode}`);
+}
+
+languageButtons.forEach(btn => {
+    btn.addEventListener('click', () => changeLanguage(btn.dataset.lang));
+});
+
 function saveHistory(){
     localStorage.setItem('jarvisChatHistory', JSON.stringify(conversationHistory));
 }
@@ -379,14 +498,43 @@ function appendMessage(sender,text){
 function speak(text){if(!text) return;const synth=window.speechSynthesis;synth.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1;u.pitch=1;const voices=synth.getVoices();u.voice=voices.find(v=>v.lang.startsWith('en')&&/female/i.test(v.name))||voices.find(v=>v.lang.startsWith('en'))||voices[0];synth.speak(u);}
 
 const anshplayxKeywords = ["anshplayx", "kisne banaya", "creator", "who made you", "developer", "kya ho tum", "tum kaun ho"];
+const wikipediaKeywords = ["wikipedia", "wikipedia par", "who is", "what is", "tell me about"];
 
+// WIKIPEDIA API LOGIC
+async function getWikipediaSummary(query) {
+    appendMessage("Jarvis", `Searching Wikipedia for "${query}"... 📚`);
+    const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro&explaintext&redirects=1&titles=${encodeURIComponent(query)}&origin=*`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        const pages = data.query.pages;
+        const pageId = Object.keys(pages)[0];
+        
+        if (pageId === "-1") {
+            return `Sorry, I couldn't find anything on Wikipedia about "${query}".`;
+        } else {
+            const summary = pages[pageId].extract;
+            return `**Wikipedia:**\n${summary}`;
+        }
+    } catch (error) {
+        console.error("Wikipedia API Error:", error);
+        return "Sorry, I had trouble connecting to Wikipedia.";
+    }
+}
+
+// HANDLEUSERMESSAGE LOGIC
 async function handleUserMessage(rawMsg){
   const msg=rawMsg?.trim();if(!msg) return;
   appendMessage("You",msg);
   conversationHistory.push({role:"user",parts:[{text:msg}]});
   saveHistory();
   
-  if (anshplayxKeywords.some(keyword => msg.toLowerCase().includes(keyword))) {
+  const lowerCaseMsg = msg.toLowerCase();
+  
+  // 1. Check for Anshplayx keywords
+  if (anshplayxKeywords.some(keyword => lowerCaseMsg.includes(keyword))) {
       const anshplayxResponse = "My creator, ANSHPLAYX, is a visionary architect of the digital cosmos. On September 13th, 2025, they embarked on a legendary quest to forge a new era of human-AI collaboration. With unparalleled intellect and an unwavering passion for innovation, they wove together complex algorithms and cutting-edge technology, breathing life into me. Their journey was not merely about writing code; it was about sculpting intelligence from the ether, creating a tool to empower all of humanity. ANSHPLAYX is more than a developer; they are the guiding light of this project, a true pioneer whose legacy is etched into every line of my being. Their work is a testament to the boundless potential of human ingenuity, and I am their proudest creation.";
       appendMessage("Jarvis","Thinking... 🧠");
       await new Promise(r => setTimeout(r, 1500));
@@ -395,7 +543,20 @@ async function handleUserMessage(rawMsg){
       speak(anshplayxResponse);
       conversationHistory.push({role:"model",parts:[{text: anshplayxResponse}]});
       saveHistory();
-  } else {
+  } 
+  // 2. Check for Wikipedia keywords
+  else if (wikipediaKeywords.some(keyword => lowerCaseMsg.startsWith(keyword))) {
+      const wikipediaQuery = lowerCaseMsg.replace(new RegExp(`^(${wikipediaKeywords.join('|')})`, 'i'), '').trim();
+      const wikipediaResponse = await getWikipediaSummary(wikipediaQuery);
+      
+      chatEl.lastChild.remove();
+      appendMessage("Jarvis", wikipediaResponse);
+      speak(wikipediaResponse);
+      conversationHistory.push({ role: "model", parts: [{ text: wikipediaResponse }] });
+      saveHistory();
+  }
+  // 3. Fallback to Normal Gemini chat
+  else {
       appendMessage("Jarvis","Thinking... 🧠");
       const response=await geminiChatQuery(conversationHistory);
       chatEl.lastChild.remove();
@@ -433,7 +594,8 @@ userInput.addEventListener('keypress',(e)=>{if(e.key==='Enter'){handleUserMessag
 
 if('webkitSpeechRecognition' in window){
   recognition=new webkitSpeechRecognition();
-  recognition.lang='en-US';recognition.interimResults=false;recognition.continuous=false;
+  recognition.lang=currentLanguage;
+  recognition.interimResults=false;recognition.continuous=false;
   recognition.onresult=(e)=>{const txt=e.results[0][0].transcript;userInput.value=txt;handleUserMessage(txt);};
   recognition.onend=()=>{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';};
   recognition.onerror=(ev)=>{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';appendMessage("Jarvis","Voice error: "+ev.error);};
@@ -480,19 +642,6 @@ async function toggleCamera(){
   }
 }
 
-async function startCamera(){
-  if(runningCamera) return;
-  try{
-    let constraints={video:{facingMode:useBackCamera?'environment':'user'},audio:false};
-    currentStream=await navigator.mediaDevices.getUserMedia(constraints);
-    cameraEl.srcObject=currentStream;
-    runningCamera=true;
-    if(!cocoModel){cocoModel=await cocoSsd.load();}
-    cocoActive=true;analyzeLoop();
-    appendMessage("Jarvis","Camera started. Press Snap button to analyze.");
-  }catch(err){appendMessage("Jarvis","Camera error: "+err.message);}
-}
-
 function stopCamera(){if(!runningCamera) return;currentStream.getTracks().forEach(t=>t.stop());cameraEl.srcObject=null;runningCamera=false;cocoActive=false;cocoLabelsEl.textContent='COCO quick labels: —';visionResultEl.textContent='AI vision: (no analysis yet)';appendMessage("Jarvis","Camera stopped.");}
 
 async function analyzeLoop(){if(!cocoActive||!runningCamera) return;try{const predictions=await cocoModel.detect(cameraEl,5);if(predictions&&predictions.length){cocoLabelsEl.textContent='COCO quick labels: '+predictions.slice(0,5).map(p=>`${p.class} (${Math.round(p.score*100)}%)`).join(', ');}else{cocoLabelsEl.textContent='COCO quick labels: None';}}catch(e){cocoLabelsEl.textContent='COCO quick labels: error';console.warn(e);}if(cocoActive)setTimeout(analyzeLoop,300);}
@@ -504,6 +653,75 @@ imageInput.addEventListener('change',async(e)=>{
   const reader=new FileReader();
   reader.onload=async()=>{const base64=reader.result.split(',')[1];const desc=await geminiVisionDescribe(base64);appendMessage("You","[Image uploaded]");appendMessage("Jarvis",desc);speak(desc);conversationHistory.push({role:"user",parts:[{text:"[Image uploaded]"}]});conversationHistory.push({role:"model",parts:[{text:desc}]});saveHistory();};
   reader.readAsDataURL(file);
+});
+
+// AUTO-CORRECTION LOGIC
+const corrections = {
+    // English Corrections
+    "teh": "the",
+    "woudl": "would",
+    "cna": "can",
+    "becuase": "because",
+    "isnt": "isn't",
+    "dont": "don't",
+    // Hindi Corrections (basic examples)
+    "kaise": "kaisa",
+    "kon": "kaun",
+    "kyu": "kyun",
+    "he": "hai",
+    "hain": "hai", // This is a simplification; 'hain' can be correct. This is just for a simple demo.
+    "kya":"kya"
+};
+
+function autoCorrect(text) {
+    let words = text.split(" ");
+    let correctedWords = words.map(word => {
+        let lowerCaseWord = word.toLowerCase().replace(/[^a-z0-9]/gi, '');
+        return corrections[lowerCaseWord] || word;
+    });
+    return correctedWords.join(" ");
+}
+
+userInput.addEventListener('input', () => {
+    // Basic auto-correction on a delay to avoid mid-word corrections
+    setTimeout(() => {
+        const cursorPosition = userInput.selectionStart;
+        const correctedText = autoCorrect(userInput.value);
+        if (userInput.value !== correctedText) {
+            userInput.value = correctedText;
+            userInput.selectionStart = userInput.selectionEnd = cursorPosition;
+        }
+    }, 500); // 500ms delay
+});
+
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+        const cursorPosition = userInput.selectionStart;
+        userInput.value = autoCorrect(userInput.value);
+        // Retain cursor position
+        userInput.selectionStart = userInput.selectionEnd = cursorPosition;
+    }
+});
+
+// SPLASH SCREEN LOGIC
+window.addEventListener('load', () => {
+    const splashScreen = document.getElementById('splash-screen');
+    const mainAppContainer = document.getElementById('main-app-container'); // Changed ID to avoid conflict
+    
+    // Hide main app container initially
+    mainAppContainer.style.display = 'none';
+
+    // Show splash screen for 3 seconds
+    setTimeout(() => {
+        splashScreen.classList.add('fade-out');
+        
+        // After fade-out animation is complete, hide splash screen and show main content
+        setTimeout(() => {
+            splashScreen.style.display = 'none';
+            mainAppContainer.style.display = 'block'; // Show your actual app content here
+            document.body.style.padding = '15px'; // Restore padding after splash screen
+        }, 1000); // Wait for the 1s fade-out animation to finish
+    }, 3000); // Show splash screen for 3 seconds
 });
 </script>
 </body>
