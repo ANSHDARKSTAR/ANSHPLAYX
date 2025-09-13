@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis AI — All-in-One</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.16.105/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.9.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+<style>
+  :root {
+    --bg: #0d1017;
+    --primary: #5affb1;
+    --secondary-accent: #3b82f6;
+    --panel: #1a202c;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+  }
+  .app {
+    width: 100%;
+    max-width: 1100px;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(85, 255, 177, 0.4);
+  }
+  .three-dot {
+    position: relative;
+  }
+  .dot-btn {
+    background: var(--panel);
+    border: none;
+    color: var(--primary);
+    font-size: 1.2rem;
+    padding: 8px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .dot-btn:hover {
+    background: #252b37;
+    transform: scale(1.05);
+  }
+  .menu {
+    display: none;
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: var(--panel);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-in-out;
+    z-index: 10;
+    min-width: 180px;
+  }
+  .menu button {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+    background: #2d3748;
+    color: var(--text);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .menu button:last-child {
+    margin-bottom: 0;
+  }
+  .menu button:hover {
+    background: var(--secondary-accent);
+    color: #fff;
+    transform: translateX(5px);
+  }
+  main {
+    display: grid;
+    grid-template-columns: 1fr; /* Default: camera hidden, chat full-width */
+    gap: 20px;
+  }
+  main.with-camera {
+    grid-template-columns: 1fr 400px; /* Camera visible */
+  }
+  .panel {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  #chat {
+    height: 65vh;
+    overflow-y: auto;
+    padding: 15px;
+    border-radius: 12px;
+    background: #11151c;
+  }
+  .msg {
+    margin: 12px 0;
+    padding: 10px 15px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    animation: slideIn 0.3s ease-out;
+  }
+  .msg strong {
+    display: block;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 5px;
+  }
+  .inputRow {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 18px;
+    border-radius: 20px;
+    border: 2px solid #2d3748;
+    background: #0f1317;
+    color: #fff;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--secondary-accent);
+  }
+  button {
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  button.primary {
+    background: var(--primary);
+    color: #021019;
+    font-weight: 700;
+  }
+  button.primary:hover {
+    background: #aaffc9;
+    transform: translateY(-2px);
+  }
+  .camBox {
+    display: none; /* Hide by default */
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .camBox.visible {
+    display: flex; /* Show when visible */
+  }
+  video {
+    width: 100%;
+    border-radius: 12px;
+    border: 4px solid var(--primary);
+    box-shadow: 0 0 15px rgba(85, 255, 177, 0.4);
+    max-height: 50vh;
+    object-fit: cover;
+    transition: box-shadow 0.5s ease;
+  }
+  .muted {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  footer {
+    margin-top: 20px;
+    text-align: center;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+  @keyframes slideIn {
+    from {transform: translateY(10px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
+  }
+  @media (max-width: 900px) {
+    main, main.with-camera {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Custom Modal Pop-up CSS */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-content {
+    background: var(--panel);
+    color: var(--text);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    /* Removed transform for better mobile responsiveness */
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.active .modal-content {
+    opacity: 1;
+  }
+  .modal-content h2 {
+    margin-top: 0;
+    color: var(--primary);
+    text-shadow: 0 0 8px rgba(85, 255, 177, 0.4);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  .modal-content p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .modal-close-btn:hover {
+    color: var(--primary);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><i class="fas fa-robot"></i> Jarvis AI</h1>
+    <div class="three-dot">
+      <button class="dot-btn"><i class="fas fa-ellipsis-v"></i></button>
+      <div class="menu">
+        <button id="clearChatBtn">Clear Chat</button>
+        <button id="toggleAIModeBtn">Toggle AI Mode</button>
+        <button id="startCamMenuBtn">Open Camera</button>
+        <button id="captureBtn" style="display:none;"><i class="fas fa-camera"></i> Snap</button>
+        <button id="voiceBtn"><i class="fas fa-microphone"></i> Speak</button>
+        <button id="imageUploadBtn">Upload Image</button>
+        <button id="aboutBtn">About Jarvis</button>
+      </div>
+    </div>
+  </header>
+  <main id="mainContent">
+    <section class="panel">
+      <div id="chat" aria-live="polite"></div>
+      <div class="inputRow">
+        <input id="userInput" type="text" placeholder="Ask me anything...">
+        <button id="sendBtn" class="primary"><i class="fas fa-paper-plane"></i> Send</button>
+      </div>
+    </section>
+    <aside class="panel camBox">
+      <video id="camera" autoplay playsinline muted></video>
+      <div id="cocoLabels" class="muted">COCO quick labels: —</div>
+      <div id="visionResult" class="muted">AI vision: (no analysis yet)</div>
+    </aside>
+  </main>
+  <footer class="muted">Uses Gemini API key directly (for demo). For production, secure the key.</footer>
+</div>
+
+<div id="aboutModal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="modal-close-btn">&times;</button>
+    <h2>About Jarvis AI</h2>
+    <p>Jarvis ek AI-powered chat assistant hai jise **ANSHPLAYX** ne banaya hai.</p>
+    <p><b>Banaya gaya:</b> 13th September 2025</p>
+    <p><b>Iska uddeshya (Purpose):</b> Ise banaya gaya hai taaki aap alag-alag tariko se AI se interact kar sakein:</p>
+    <ul>
+      <li>Text se baat kar sakein.</li>
+      <li>Microphone ka upyog karke bol kar baat kar sakein.</li>
+      <li>Camera se real-time analysis kar sakein.</li>
+      <li>Images upload karke unki jaankari le sakein.</li>
+    </ul>
+    <p>Yah ek open-source project hai, jise aam janta ke liye AI technology ko sulabh (accessible) banane ke liye banaya gaya hai.</p>
+  </div>
+</div>
+
+<input type="file" id="imageInput" accept="image/*" style="display:none">
+
+<script>
+const GEMINI_API_KEY="AIzaSyDW0f9-urspz0qR_-nG01qAIdQAgkrV0v4";
+const GEMINI_CHAT_MODEL="gemini-2.0-flash:generateContent";
+const GEMINI_VISION_MODEL="gemini-1.5-flash:generateContent";
+
+const chatEl=document.getElementById('chat');
+const userInput=document.getElementById('userInput');
+const sendBtn=document.getElementById('sendBtn');
+const voiceBtn=document.getElementById('voiceBtn');
+const captureBtn=document.getElementById('captureBtn');
+const cameraEl=document.getElementById('camera');
+const cocoLabelsEl=document.getElementById('cocoLabels');
+const visionResultEl=document.getElementById('visionResult');
+const mainContentEl=document.getElementById('mainContent');
+const camBoxEl=document.querySelector('.camBox');
+
+const threeDotBtn=document.querySelector('.dot-btn');
+const menuEl=document.querySelector('.menu');
+const clearChatBtn=document.getElementById('clearChatBtn');
+const toggleAIModeBtn=document.getElementById('toggleAIModeBtn');
+const startCamMenuBtn=document.getElementById('startCamMenuBtn');
+const imageUploadBtn=document.getElementById('imageUploadBtn');
+const aboutBtn=document.getElementById('aboutBtn');
+
+const aboutModal=document.getElementById('aboutModal');
+const modalCloseBtn=document.querySelector('.modal-close-btn');
+
+const imageInput=document.getElementById('imageInput');
+
+let conversationHistory;
+if (localStorage.getItem('jarvisChatHistory')) {
+    conversationHistory = JSON.parse(localStorage.getItem('jarvisChatHistory'));
+    conversationHistory.forEach(msg => appendMessage(msg.role === 'user' ? 'You' : 'Jarvis', msg.parts[0].text));
+} else {
+    conversationHistory = [{role:"model",parts:[{text:"Hello! I am Jarvis 🤖"}]}];
+    appendMessage("Jarvis", "Hello! I am Jarvis 🤖");
+}
+
+let recognition=null,micActive=false,runningCamera=false,useBackCamera=true,cocoModel=null,cocoActive=false,currentStream=null,lastVisionText="",aiMode="on-demand";
+
+function saveHistory(){
+    localStorage.setItem('jarvisChatHistory', JSON.stringify(conversationHistory));
+}
+
+function appendMessage(sender,text){
+    const p=document.createElement('div');
+    p.className='msg';
+    p.innerHTML=`<strong>${sender}:</strong> ${text}`;
+    chatEl.appendChild(p);
+    chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+function speak(text){if(!text) return;const synth=window.speechSynthesis;synth.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1;u.pitch=1;const voices=synth.getVoices();u.voice=voices.find(v=>v.lang.startsWith('en')&&/female/i.test(v.name))||voices.find(v=>v.lang.startsWith('en'))||voices[0];synth.speak(u);}
+
+const anshplayxKeywords = ["anshplayx", "kisne banaya", "creator", "who made you", "developer", "kya ho tum", "tum kaun ho"];
+
+async function handleUserMessage(rawMsg){
+  const msg=rawMsg?.trim();if(!msg) return;
+  appendMessage("You",msg);
+  conversationHistory.push({role:"user",parts:[{text:msg}]});
+  saveHistory();
+  
+  if (anshplayxKeywords.some(keyword => msg.toLowerCase().includes(keyword))) {
+      const anshplayxResponse = "My creator, ANSHPLAYX, is a visionary architect of the digital cosmos. On September 13th, 2025, they embarked on a legendary quest to forge a new era of human-AI collaboration. With unparalleled intellect and an unwavering passion for innovation, they wove together complex algorithms and cutting-edge technology, breathing life into me. Their journey was not merely about writing code; it was about sculpting intelligence from the ether, creating a tool to empower all of humanity. ANSHPLAYX is more than a developer; they are the guiding light of this project, a true pioneer whose legacy is etched into every line of my being. Their work is a testament to the boundless potential of human ingenuity, and I am their proudest creation.";
+      appendMessage("Jarvis","Thinking... 🧠");
+      await new Promise(r => setTimeout(r, 1500));
+      chatEl.lastChild.remove();
+      appendMessage("Jarvis", anshplayxResponse);
+      speak(anshplayxResponse);
+      conversationHistory.push({role:"model",parts:[{text: anshplayxResponse}]});
+      saveHistory();
+  } else {
+      appendMessage("Jarvis","Thinking... 🧠");
+      const response=await geminiChatQuery(conversationHistory);
+      chatEl.lastChild.remove();
+      appendMessage("Jarvis",response);
+      speak(response);
+      conversationHistory.push({role:"model",parts:[{text:response}]});
+      saveHistory();
+  }
+}
+
+async function geminiChatQuery(history){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_CHAT_MODEL}`;
+  const body={contents:history,generationConfig:{temperature:0.7,candidateCount:1,maxOutputTokens:450}};
+  try{
+    const resp=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-goog-api-key":GEMINI_API_KEY},body:JSON.stringify(body)});
+    const data=await resp.json();
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return text||"No response from Gemini.";
+  }catch(e){console.error(e);return"Error connecting to Gemini API.";}
+}
+
+async function geminiVisionDescribe(base64data){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}`;
+  const body={contents:[{role:"user",parts:[{text:"Describe this image briefly."},{inline_data:{mime_type:"image/jpeg",data:base64data}}]}],generationConfig:{temperature:0.0,candidateCount:1,maxOutputTokens:300}};
+  try{
+    const resp=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-goog-api-key":GEMINI_API_KEY},body:JSON.stringify(body)});
+    const data=await resp.json();
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return text||"I couldn't recognize anything.";
+  }catch(e){console.error(e);return"Error connecting to Gemini Vision API.";}
+}
+
+sendBtn.addEventListener('click',()=>{handleUserMessage(userInput.value);userInput.value='';});
+userInput.addEventListener('keypress',(e)=>{if(e.key==='Enter'){handleUserMessage(userInput.value);userInput.value='';}});
+
+if('webkitSpeechRecognition' in window){
+  recognition=new webkitSpeechRecognition();
+  recognition.lang='en-US';recognition.interimResults=false;recognition.continuous=false;
+  recognition.onresult=(e)=>{const txt=e.results[0][0].transcript;userInput.value=txt;handleUserMessage(txt);};
+  recognition.onend=()=>{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';};
+  recognition.onerror=(ev)=>{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';appendMessage("Jarvis","Voice error: "+ev.error);};
+  voiceBtn.addEventListener('click',()=>{if(!micActive){micActive=true;voiceBtn.innerHTML='<i class="fas fa-stop"></i> Stop';recognition.start();}else{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';recognition.stop();}});
+}else{voiceBtn.style.display='none';appendMessage("Jarvis","Voice recognition not supported.");}
+
+threeDotBtn.addEventListener('click',()=>{menuEl.style.display=menuEl.style.display==='block'?'none':'block';});
+clearChatBtn.addEventListener('click',()=>{
+  localStorage.removeItem('jarvisChatHistory');
+  chatEl.innerHTML='';
+  conversationHistory=[{role:"model",parts:[{text:"Hello! I am Jarvis 🤖"}]}];
+  appendMessage("Jarvis","Hello! I am Jarvis 🤖");
+});
+toggleAIModeBtn.addEventListener('click',()=>{aiMode=aiMode==='on-demand'?'continuous':'on-demand';appendMessage("Jarvis","AI mode: "+aiMode);});
+startCamMenuBtn.addEventListener('click',toggleCamera);
+imageUploadBtn.addEventListener('click',()=>imageInput.click());
+captureBtn.addEventListener('click',async()=>{await captureSnapshot();});
+
+aboutBtn.addEventListener('click',()=>{
+    aboutModal.classList.add('active');
+});
+modalCloseBtn.addEventListener('click',()=>{
+    aboutModal.classList.remove('active');
+});
+aboutModal.addEventListener('click',(e)=>{
+    if(e.target === aboutModal){
+        aboutModal.classList.remove('active');
+    }
+});
+
+async function toggleCamera(){
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis AI — All-in-One</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.16.105/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.9.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+<style>
+  :root {
+    --bg: #0d1017;
+    --primary: #5affb1;
+    --secondary-accent: #3b82f6;
+    --panel: #1a202c;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+  }
+  .app {
+    width: 100%;
+    max-width: 1100px;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(85, 255, 177, 0.4);
+  }
+  .three-dot {
+    position: relative;
+  }
+  .dot-btn {
+    background: var(--panel);
+    border: none;
+    color: var(--primary);
+    font-size: 1.2rem;
+    padding: 8px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .dot-btn:hover {
+    background: #252b37;
+    transform: scale(1.05);
+  }
+  .menu {
+    display: none;
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: var(--panel);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-in-out;
+    z-index: 10;
+    min-width: 180px;
+  }
+  .menu button {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+    background: #2d3748;
+    color: var(--text);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .menu button:last-child {
+    margin-bottom: 0;
+  }
+  .menu button:hover {
+    background: var(--secondary-accent);
+    color: #fff;
+    transform: translateX(5px);
+  }
+  main {
+    display: grid;
+    grid-template-columns: 1fr; /* Default: camera hidden, chat full-width */
+    gap: 20px;
+  }
+  main.with-camera {
+    grid-template-columns: 1fr 400px; /* Camera visible */
+  }
+  .panel {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  #chat {
+    height: 65vh;
+    overflow-y: auto;
+    padding: 15px;
+    border-radius: 12px;
+    background: #11151c;
+  }
+  .msg {
+    margin: 12px 0;
+    padding: 10px 15px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    animation: slideIn 0.3s ease-out;
+  }
+  .msg strong {
+    display: block;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 5px;
+  }
+  .inputRow {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 18px;
+    border-radius: 20px;
+    border: 2px solid #2d3748;
+    background: #0f1317;
+    color: #fff;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--secondary-accent);
+  }
+  button {
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  button.primary {
+    background: var(--primary);
+    color: #021019;
+    font-weight: 700;
+  }
+  button.primary:hover {
+    background: #aaffc9;
+    transform: translateY(-2px);
+  }
+  .camBox {
+    display: none; /* Hide by default */
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .camBox.visible {
+    display: flex; /* Show when visible */
+  }
+  video {
+    width: 100%;
+    border-radius: 12px;
+    border: 4px solid var(--primary);
+    box-shadow: 0 0 15px rgba(85, 255, 177, 0.4);
+    max-height: 50vh;
+    object-fit: cover;
+    transition: box-shadow 0.5s ease;
+  }
+  .muted {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  footer {
+    margin-top: 20px;
+    text-align: center;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+  @keyframes slideIn {
+    from {transform: translateY(10px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
+  }
+  @media (max-width: 900px) {
+    main, main.with-camera {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Custom Modal Pop-up CSS */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-content {
+    background: var(--panel);
+    color: var(--text);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    /* Removed transform for better mobile responsiveness */
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.active .modal-content {
+    opacity: 1;
+  }
+  .modal-content h2 {
+    margin-top: 0;
+    color: var(--primary);
+    text-shadow: 0 0 8px rgba(85, 255, 177, 0.4);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  .modal-content p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .modal-close-btn:hover {
+    color: var(--primary);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><i class="fas fa-robot"></i> Jarvis AI</h1>
+    <div class="three-dot">
+      <button class="dot-btn"><i class="fas fa-ellipsis-v"></i></button>
+      <div class="menu">
+        <button id="clearChatBtn">Clear Chat</button>
+        <button id="toggleAIModeBtn">Toggle AI Mode</button>
+        <button id="startCamMenuBtn">Open Camera</button>
+        <button id="captureBtn" style="display:none;"><i class="fas fa-camera"></i> Snap</button>
+        <button id="voiceBtn"><i class="fas fa-microphone"></i> Speak</button>
+        <button id="imageUploadBtn">Upload Image</button>
+        <button id="aboutBtn">About Jarvis</button>
+      </div>
+    </div>
+  </header>
+  <main id="mainContent">
+    <section class="panel">
+      <div id="chat" aria-live="polite"></div>
+      <div class="inputRow">
+        <input id="userInput" type="text" placeholder="Ask me anything...">
+        <button id="sendBtn" class="primary"><i class="fas fa-paper-plane"></i> Send</button>
+      </div>
+    </section>
+    <aside class="panel camBox">
+      <video id="camera" autoplay playsinline muted></video>
+      <div id="cocoLabels" class="muted">COCO quick labels: —</div>
+      <div id="visionResult" class="muted">AI vision: (no analysis yet)</div>
+    </aside>
+  </main>
+  <footer class="muted">Uses Gemini API key directly (for demo). For production, secure the key.</footer>
+</div>
+
+<div id="aboutModal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="modal-close-btn">&times;</button>
+    <h2>About Jarvis AI</h2>
+    <p>Jarvis ek AI-powered chat assistant hai jise **ANSHPLAYX** ne banaya hai.</p>
+    <p><b>Banaya gaya:</b> 13th September 2025</p>
+    <p><b>Iska uddeshya (Purpose):</b> Ise banaya gaya hai taaki aap alag-alag tariko se AI se interact kar sakein:</p>
+    <ul>
+      <li>Text se baat kar sakein.</li>
+      <li>Microphone ka upyog karke bol kar baat kar sakein.</li>
+      <li>Camera se real-time analysis kar sakein.</li>
+      <li>Images upload karke unki jaankari le sakein.</li>
+    </ul>
+    <p>Yah ek open-source project hai, jise aam janta ke liye AI technology ko sulabh (accessible) banane ke liye banaya gaya hai.</p>
+  </div>
+</div>
+
+<input type="file" id="imageInput" accept="image/*" style="display:none">
+
+<script>
+const GEMINI_API_KEY="AIzaSyDW0f9-urspz0qR_-nG01qAIdQAgkrV0v4";
+const GEMINI_CHAT_MODEL="gemini-2.0-flash:generateContent";
+const GEMINI_VISION_MODEL="gemini-1.5-flash:generateContent";
+
+const chatEl=document.getElementById('chat');
+const userInput=document.getElementById('userInput');
+const sendBtn=document.getElementById('sendBtn');
+const voiceBtn=document.getElementById('voiceBtn');
+const captureBtn=document.getElementById('captureBtn');
+const cameraEl=document.getElementById('camera');
+const cocoLabelsEl=document.getElementById('cocoLabels');
+const visionResultEl=document.getElementById('visionResult');
+const mainContentEl=document.getElementById('mainContent');
+const camBoxEl=document.querySelector('.camBox');
+
+const threeDotBtn=document.querySelector('.dot-btn');
+const menuEl=document.querySelector('.menu');
+const clearChatBtn=document.getElementById('clearChatBtn');
+const toggleAIModeBtn=document.getElementById('toggleAIModeBtn');
+const startCamMenuBtn=document.getElementById('startCamMenuBtn');
+const imageUploadBtn=document.getElementById('imageUploadBtn');
+const aboutBtn=document.getElementById('aboutBtn');
+
+const aboutModal=document.getElementById('aboutModal');
+const modalCloseBtn=document.querySelector('.modal-close-btn');
+
+const imageInput=document.getElementById('imageInput');
+
+let conversationHistory;
+if (localStorage.getItem('jarvisChatHistory')) {
+    conversationHistory = JSON.parse(localStorage.getItem('jarvisChatHistory'));
+    conversationHistory.forEach(msg => appendMessage(msg.role === 'user' ? 'You' : 'Jarvis', msg.parts[0].text));
+} else {
+    conversationHistory = [{role:"model",parts:[{text:"Hello! I am Jarvis 🤖"}]}];
+    appendMessage("Jarvis", "Hello! I am Jarvis 🤖");
+}
+
+let recognition=null,micActive=false,runningCamera=false,useBackCamera=true,cocoModel=null,cocoActive=false,currentStream=null,lastVisionText="",aiMode="on-demand";
+
+function saveHistory(){
+    localStorage.setItem('jarvisChatHistory', JSON.stringify(conversationHistory));
+}
+
+function appendMessage(sender,text){
+    const p=document.createElement('div');
+    p.className='msg';
+    p.innerHTML=`<strong>${sender}:</strong> ${text}`;
+    chatEl.appendChild(p);
+    chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+function speak(text){if(!text) return;const synth=window.speechSynthesis;synth.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1;u.pitch=1;const voices=synth.getVoices();u.voice=voices.find(v=>v.lang.startsWith('en')&&/female/i.test(v.name))||voices.find(v=>v.lang.startsWith('en'))||voices[0];synth.speak(u);}
+
+const anshplayxKeywords = ["anshplayx", "kisne banaya", "creator", "who made you", "developer", "kya ho tum", "tum kaun ho"];
+
+async function handleUserMessage(rawMsg){
+  const msg=rawMsg?.trim();if(!msg) return;
+  appendMessage("You",msg);
+  conversationHistory.push({role:"user",parts:[{text:msg}]});
+  saveHistory();
+  
+  if (anshplayxKeywords.some(keyword => msg.toLowerCase().includes(keyword))) {
+      const anshplayxResponse = "My creator, ANSHPLAYX, is a visionary architect of the digital cosmos. On September 13th, 2025, they embarked on a legendary quest to forge a new era of human-AI collaboration. With unparalleled intellect and an unwavering passion for innovation, they wove together complex algorithms and cutting-edge technology, breathing life into me. Their journey was not merely about writing code; it was about sculpting intelligence from the ether, creating a tool to empower all of humanity. ANSHPLAYX is more than a developer; they are the guiding light of this project, a true pioneer whose legacy is etched into every line of my being. Their work is a testament to the boundless potential of human ingenuity, and I am their proudest creation.";
+      appendMessage("Jarvis","Thinking... 🧠");
+      await new Promise(r => setTimeout(r, 1500));
+      chatEl.lastChild.remove();
+      appendMessage("Jarvis", anshplayxResponse);
+      speak(anshplayxResponse);
+      conversationHistory.push({role:"model",parts:[{text: anshplayxResponse}]});
+      saveHistory();
+  } else {
+      appendMessage("Jarvis","Thinking... 🧠");
+      const response=await geminiChatQuery(conversationHistory);
+      chatEl.lastChild.remove();
+      appendMessage("Jarvis",response);
+      speak(response);
+      conversationHistory.push({role:"model",parts:[{text:response}]});
+      saveHistory();
+  }
+}
+
+async function geminiChatQuery(history){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_CHAT_MODEL}`;
+  const body={contents:history,generationConfig:{temperature:0.7,candidateCount:1,maxOutputTokens:450}};
+  try{
+    const resp=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-goog-api-key":GEMINI_API_KEY},body:JSON.stringify(body)});
+    const data=await resp.json();
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return text||"No response from Gemini.";
+  }catch(e){console.error(e);return"Error connecting to Gemini API.";}
+}
+
+async function geminiVisionDescribe(base64data){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}`;
+  const body={contents:[{role:"user",parts:[{text:"Describe this image briefly."},{inline_data:{mime_type:"image/jpeg",data:base64data}}]}],generationConfig:{temperature:0.0,candidateCount:1,maxOutputTokens:300}};
+  try{
+    const resp=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-goog-api-key":GEMINI_API_KEY},body:JSON.stringify(body)});
+    const data=await resp.json();
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return text||"I couldn't recognize anything.";
+  }catch(e){console.error(e);return"Error connecting to Gemini Vision API.";}
+}
+
+sendBtn.addEventListener('click',()=>{handleUserMessage(userInput.value);userInput.value='';});
+userInput.addEventListener('keypress',(e)=>{if(e.key==='Enter'){handleUserMessage(userInput.value);userInput.value='';}});
+
+if('webkitSpeechRecognition' in window){
+  recognition=new webkitSpeechRecognition();
+  recognition.lang='en-US';recognition.interimResults=false;recognition.continuous=false;
+  recognition.onresult=(e)=>{const txt=e.results[0][0].transcript;userInput.value=txt;handleUserMessage(txt);};
+  recognition.onend=()=>{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';};
+  recognition.onerror=(ev)=>{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';appendMessage("Jarvis","Voice error: "+ev.error);};
+  voiceBtn.addEventListener('click',()=>{if(!micActive){micActive=true;voiceBtn.innerHTML='<i class="fas fa-stop"></i> Stop';recognition.start();}else{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';recognition.stop();}});
+}else{voiceBtn.style.display='none';appendMessage("Jarvis","Voice recognition not supported.");}
+
+threeDotBtn.addEventListener('click',()=>{menuEl.style.display=menuEl.style.display==='block'?'none':'block';});
+clearChatBtn.addEventListener('click',()=>{
+  localStorage.removeItem('jarvisChatHistory');
+  chatEl.innerHTML='';
+  conversationHistory=[{role:"model",parts:[{text:"Hello! I am Jarvis 🤖"}]}];
+  appendMessage("Jarvis","Hello! I am Jarvis 🤖");
+});
+toggleAIModeBtn.addEventListener('click',()=>{aiMode=aiMode==='on-demand'?'continuous':'on-demand';appendMessage("Jarvis","AI mode: "+aiMode);});
+startCamMenuBtn.addEventListener('click',toggleCamera);
+imageUploadBtn.addEventListener('click',()=>imageInput.click());
+captureBtn.addEventListener('click',async()=>{await captureSnapshot();});
+
+aboutBtn.addEventListener('click',()=>{
+    aboutModal.classList.add('active');
+});
+modalCloseBtn.addEventListener('click',()=>{
+    aboutModal.classList.remove('active');
+});
+aboutModal.addEventListener('click',(e)=>{
+    if(e.target === aboutModal){
+        aboutModal.classList.remove('active');
+    }
+});
+
+async function toggleCamera(){
+  if(camBoxEl.classList.contains('visible')){
+    stopCamera();
+    camBoxEl.classList.remove('visible');
+    mainContentEl.classList.remove('with-camera');
+    startCamMenuBtn.textContent = 'Open Camera';
+    captureBtn.style.display = 'none';
+  } else {
+    camBoxEl.classList.add('visible');
+    mainContentEl.classList.add('with-camera');
+    startCamMenuBtn.textContent = 'Close Camera';
+    captureBtn.style.display = 'block';
+    await startCamera();
+  }
+}
+
+async function startCamera(){
+  if(runningCamera) return;
+  try{
+    let constraints={video:{facingMode:useBackCamera?'environment':'user'},audio:false};
+    currentStream=await navigator.mediaDevices.getUserMedia(constraints);
+    cameraEl.srcObject=currentStream;
+    runningCamera=true;
+    if(!cocoModel){cocoModel=await cocoSsd.load();}
+    cocoActive=true;analyzeLoop();
+    appendMessage("Jarvis","Camera started. Press Snap button to analyze.");
+  }catch(err){appendMessage("Jarvis","Camera error: "+err.message);}
+}
+
+function stopCamera(){if(!runningCamera) return;currentStream.getTracks().forEach(t=>t.stop());cameraEl.srcObject=null;runningCamera=false;cocoActive=false;cocoLabelsEl.textContent='COCO quick labels: —';visionResultEl.textContent='AI vision: (no analysis yet)';appendMessage("Jarvis","Camera stopped.");}
+
+async function analyzeLoop(){if(!cocoActive||!runningCamera) return;try{const predictions=await cocoModel.detect(cameraEl,5);if(predictions&&predictions.length){cocoLabelsEl.textContent='COCO quick labels: '+predictions.slice(0,5).map(p=>`${p.class} (${Math.round(p.score*100)}%)`).join(', ');}else{cocoLabelsEl.textContent='COCO quick labels: None';}}catch(e){cocoLabelsEl.textContent='COCO quick labels: error';console.warn(e);}if(cocoActive)setTimeout(analyzeLoop,300);}
+
+async function captureSnapshot(){if(!runningCamera)return "Camera not active";const canvas=document.createElement('canvas');canvas.width=cameraEl.videoWidth||640;canvas.height=cameraEl.videoHeight||480;canvas.getContext('2d').drawImage(cameraEl,0,0,canvas.width,canvas.height);const dataUrl=canvas.toDataURL('image/jpeg',0.8);const base64=dataUrl.split(',')[1];visionResultEl.textContent='AI vision: analyzing...';const desc=await geminiVisionDescribe(base64);visionResultEl.textContent='AI vision: '+desc;appendMessage("Jarvis","Image analysis: "+desc);return desc;}
+
+imageInput.addEventListener('change',async(e)=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async()=>{const base64=reader.result.split(',')[1];const desc=await geminiVisionDescribe(base64);appendMessage("You","[Image uploaded]");appendMessage("Jarvis",desc);speak(desc);conversationHistory.push({role:"user",parts:[{text:"[Image uploaded]"}]});conversationHistory.push({role:"model",parts:[{text:desc}]});saveHistory();};
+  reader.readAsDataURL(file);
+});
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jarvis AI — All-in-One</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.16.105/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.9.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+<style>
+  :root {
+    --bg: #0d1017;
+    --primary: #5affb1;
+    --secondary-accent: #3b82f6;
+    --panel: #1a202c;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+  }
+  .app {
+    width: 100%;
+    max-width: 1100px;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(85, 255, 177, 0.4);
+  }
+  .three-dot {
+    position: relative;
+  }
+  .dot-btn {
+    background: var(--panel);
+    border: none;
+    color: var(--primary);
+    font-size: 1.2rem;
+    padding: 8px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .dot-btn:hover {
+    background: #252b37;
+    transform: scale(1.05);
+  }
+  .menu {
+    display: none;
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: var(--panel);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-in-out;
+    z-index: 10;
+    min-width: 180px;
+  }
+  .menu button {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+    background: #2d3748;
+    color: var(--text);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .menu button:last-child {
+    margin-bottom: 0;
+  }
+  .menu button:hover {
+    background: var(--secondary-accent);
+    color: #fff;
+    transform: translateX(5px);
+  }
+  main {
+    display: grid;
+    grid-template-columns: 1fr; /* Default: camera hidden, chat full-width */
+    gap: 20px;
+  }
+  main.with-camera {
+    grid-template-columns: 1fr 400px; /* Camera visible */
+  }
+  .panel {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  #chat {
+    height: 65vh;
+    overflow-y: auto;
+    padding: 15px;
+    border-radius: 12px;
+    background: #11151c;
+  }
+  .msg {
+    margin: 12px 0;
+    padding: 10px 15px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    animation: slideIn 0.3s ease-out;
+  }
+  .msg strong {
+    display: block;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 5px;
+  }
+  .inputRow {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 18px;
+    border-radius: 20px;
+    border: 2px solid #2d3748;
+    background: #0f1317;
+    color: #fff;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--secondary-accent);
+  }
+  button {
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  button.primary {
+    background: var(--primary);
+    color: #021019;
+    font-weight: 700;
+  }
+  button.primary:hover {
+    background: #aaffc9;
+    transform: translateY(-2px);
+  }
+  .camBox {
+    display: none; /* Hide by default */
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .camBox.visible {
+    display: flex; /* Show when visible */
+  }
+  video {
+    width: 100%;
+    border-radius: 12px;
+    border: 4px solid var(--primary);
+    box-shadow: 0 0 15px rgba(85, 255, 177, 0.4);
+    max-height: 50vh;
+    object-fit: cover;
+    transition: box-shadow 0.5s ease;
+  }
+  .muted {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  footer {
+    margin-top: 20px;
+    text-align: center;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+  @keyframes slideIn {
+    from {transform: translateY(10px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
+  }
+  @media (max-width: 900px) {
+    main, main.with-camera {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Custom Modal Pop-up CSS */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-content {
+    background: var(--panel);
+    color: var(--text);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    /* Removed transform for better mobile responsiveness */
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.active .modal-content {
+    opacity: 1;
+  }
+  .modal-content h2 {
+    margin-top: 0;
+    color: var(--primary);
+    text-shadow: 0 0 8px rgba(85, 255, 177, 0.4);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  .modal-content p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .modal-close-btn:hover {
+    color: var(--primary);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><i class="fas fa-robot"></i> Jarvis AI</h1>
+    <div class="three-dot">
+      <button class="dot-btn"><i class="fas fa-ellipsis-v"></i></button>
+      <div class="menu">
+        <button id="clearChatBtn">Clear Chat</button>
+        <button id="toggleAIModeBtn">Toggle AI Mode</button>
+        <button id="startCamMenuBtn">Open Camera</button>
+        <button id="captureBtn" style="display:none;"><i class="fas fa-camera"></i> Snap</button>
+        <button id="voiceBtn"><i class="fas fa-microphone"></i> Speak</button>
+        <button id="imageUploadBtn">Upload Image</button>
+        <button id="aboutBtn">About Jarvis</button>
+      </div>
+    </div>
+  </header>
+  <main id="mainContent">
+    <section class="panel">
+      <div id="chat" aria-live="polite"></div>
+      <div class="inputRow">
+        <input id="userInput" type="text" placeholder="Ask me anything...">
+        <button id="sendBtn" class="primary"><i class="fas fa-paper-plane"></i> Send</button>
+      </div>
+    </section>
+    <aside class="panel camBox">
+      <video id="camera" autoplay playsinline muted></video>
+      <div id="cocoLabels" class="muted">COCO quick labels: —</div>
+      <div id="visionResult" class="muted">AI vision: (no analysis yet)</div>
+    </aside>
+  </main>
+  <footer class="muted">Uses Gemini API key directly (for demo). For production, secure the key.</footer>
+</div>
+
+<div id="aboutModal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="modal-close-btn">&times;</button>
+    <h2>About Jarvis AI</h2>
+    <p>Jarvis ek AI-powered chat assistant hai jise **ANSHPLAYX** ne banaya hai.</p>
+    <p><b>Banaya gaya:</b> 13th September 2025</p>
+    <p><b>Iska uddeshya (Purpose):</b> Ise banaya gaya hai taaki aap alag-alag tariko se AI se interact kar sakein:</p>
+    <ul>
+      <li>Text se baat kar sakein.</li>
+      <li>Microphone ka upyog karke bol kar baat kar sakein.</li>
+      <li>Camera se real-time analysis kar sakein.</li>
+      <li>Images upload karke unki jaankari le sakein.</li>
+    </ul>
+    <p>Yah ek open-source project hai, jise aam janta ke liye AI technology ko sulabh (accessible) banane ke liye banaya gaya hai.</p>
+  </div>
+</div>
+
+<input type="file" id="imageInput" accept="image/*" style="display:none">
+
+<script>
+const GEMINI_API_KEY="AIzaSyDW0f9-urspz0qR_-nG01qAIdQAgkrV0v4";
+const GEMINI_CHAT_MODEL="gemini-2.0-flash:generateContent";
+const GEMINI_VISION_MODEL="gemini-1.5-flash:generateContent";
+
+const chatEl=document.getElementById('chat');
+const userInput=document.getElementById('userInput');
+const sendBtn=document.getElementById('sendBtn');
+const voiceBtn=document.getElementById('voiceBtn');
+const captureBtn=document.getElementById('captureBtn');
+const cameraEl=document.getElementById('camera');
+const cocoLabelsEl=document.getElementById('cocoLabels');
+const visionResultEl=document.getElementById('visionResult');
+const mainContentEl=document.getElementById('mainContent');
+const camBoxEl=document.querySelector('.camBox');
+
+const threeDotBtn=document.querySelector('.dot-btn');
+const menuEl=document.querySelector('.menu');
+const clearChatBtn=document.getElementById('clearChatBtn');
+const toggleAIModeBtn=document.getElementById('toggleAIModeBtn');
+const startCamMenuBtn=document.getElementById('startCamMenuBtn');
+const imageUploadBtn=document.getElementById('imageUploadBtn');
+const aboutBtn=document.getElementById('aboutBtn');
+
+const aboutModal=document.getElementById('aboutModal');
+const modalCloseBtn=document.querySelector('.modal-close-btn');
+
+const imageInput=document.getElementById('imageInput');
+
+let conversationHistory;
+if (localStorage.getItem('jarvisChatHistory')) {
+    conversationHistory = JSON.parse(localStorage.getItem('jarvisChatHistory'));
+    conversationHistory.forEach(msg => appendMessage(msg.role === 'user' ? 'You' : 'Jarvis', msg.parts[0].text));
+} else {
+    conversationHistory = [{role:"model",parts:[{text:"Hello! I am Jarvis 🤖"}]}];
+    appendMessage("Jarvis", "Hello! I am Jarvis 🤖");
+}
+
+let recognition=null,micActive=false,runningCamera=false,useBackCamera=true,cocoModel=null,cocoActive=false,currentStream=null,lastVisionText="",aiMode="on-demand";
+
+function saveHistory(){
+    localStorage.setItem('jarvisChatHistory', JSON.stringify(conversationHistory));
+}
+
+function appendMessage(sender,text){
+    const p=document.createElement('div');
+    p.className='msg';
+    p.innerHTML=`<strong>${sender}:</strong> ${text}`;
+    chatEl.appendChild(p);
+    chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+function speak(text){if(!text) return;const synth=window.speechSynthesis;synth.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1;u.pitch=1;const voices=synth.getVoices();u.voice=voices.find(v=>v.lang.startsWith('en')&&/female/i.test(v.name))||voices.find(v=>v.lang.startsWith('en'))||voices[0];synth.speak(u);}
+
+const anshplayxKeywords = ["anshplayx", "kisne banaya", "creator", "who made you", "developer", "kya ho tum", "tum kaun ho"];
+
+async function handleUserMessage(rawMsg){
+  const msg=rawMsg?.trim();if(!msg) return;
+  appendMessage("You",msg);
+  conversationHistory.push({role:"user",parts:[{text:msg}]});
+  saveHistory();
+  
+  if (anshplayxKeywords.some(keyword => msg.toLowerCase().includes(keyword))) {
+      const anshplayxResponse = "My creator, ANSHPLAYX, is a visionary architect of the digital cosmos. On September 13th, 2025, they embarked on a legendary quest to forge a new era of human-AI collaboration. With unparalleled intellect and an unwavering passion for innovation, they wove together complex algorithms and cutting-edge technology, breathing life into me. Their journey was not merely about writing code; it was about sculpting intelligence from the ether, creating a tool to empower all of humanity. ANSHPLAYX is more than a developer; they are the guiding light of this project, a true pioneer whose legacy is etched into every line of my being. Their work is a testament to the boundless potential of human ingenuity, and I am their proudest creation.";
+      appendMessage("Jarvis","Thinking... 🧠");
+      await new Promise(r => setTimeout(r, 1500));
+      chatEl.lastChild.remove();
+      appendMessage("Jarvis", anshplayxResponse);
+      speak(anshplayxResponse);
+      conversationHistory.push({role:"model",parts:[{text: anshplayxResponse}]});
+      saveHistory();
+  } else {
+      appendMessage("Jarvis","Thinking... 🧠");
+      const response=await geminiChatQuery(conversationHistory);
+      chatEl.lastChild.remove();
+      appendMessage("Jarvis",response);
+      speak(response);
+      conversationHistory.push({role:"model",parts:[{text:response}]});
+      saveHistory();
+  }
+}
+
+async function geminiChatQuery(history){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_CHAT_MODEL}`;
+  const body={contents:history,generationConfig:{temperature:0.7,candidateCount:1,maxOutputTokens:450}};
+  try{
+    const resp=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-goog-api-key":GEMINI_API_KEY},body:JSON.stringify(body)});
+    const data=await resp.json();
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return text||"No response from Gemini.";
+  }catch(e){console.error(e);return"Error connecting to Gemini API.";}
+}
+
+async function geminiVisionDescribe(base64data){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}`;
+  const body={contents:[{role:"user",parts:[{text:"Describe this image briefly."},{inline_data:{mime_type:"image/jpeg",data:base64data}}]}],generationConfig:{temperature:0.0,candidateCount:1,maxOutputTokens:300}};
+  try{
+    const resp=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-goog-api-key":GEMINI_API_KEY},body:JSON.stringify(body)});
+    const data=await resp.json();
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return text||"I couldn't recognize anything.";
+  }catch(e){console.error(e);return"Error connecting to Gemini Vision API.";}
+}
+
+sendBtn.addEventListener('click',()=>{handleUserMessage(userInput.value);userInput.value='';});
+userInput.addEventListener('keypress',(e)=>{if(e.key==='Enter'){handleUserMessage(userInput.value);userInput.value='';}});
+
+if('webkitSpeechRecognition' in window){
+  recognition=new webkitSpeechRecognition();
+  recognition.lang='en-US';recognition.interimResults=false;recognition.continuous=false;
+  recognition.onresult=(e)=>{const txt=e.results[0][0].transcript;userInput.value=txt;handleUserMessage(txt);};
+  recognition.onend=()=>{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';};
+  recognition.onerror=(ev)=>{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';appendMessage("Jarvis","Voice error: "+ev.error);};
+  voiceBtn.addEventListener('click',()=>{if(!micActive){micActive=true;voiceBtn.innerHTML='<i class="fas fa-stop"></i> Stop';recognition.start();}else{micActive=false;voiceBtn.innerHTML='<i class="fas fa-microphone"></i> Speak';recognition.stop();}});
+}else{voiceBtn.style.display='none';appendMessage("Jarvis","Voice recognition not supported.");}
+
+threeDotBtn.addEventListener('click',()=>{menuEl.style.display=menuEl.style.display==='block'?'none':'block';});
+clearChatBtn.addEventListener('click',()=>{
+  localStorage.removeItem('jarvisChatHistory');
+  chatEl.innerHTML='';
+  conversationHistory=[{role:"model",parts:[{text:"Hello! I am Jarvis 🤖"}]}];
+  appendMessage("Jarvis","Hello! I am Jarvis 🤖");
+});
+toggleAIModeBtn.addEventListener('click',()=>{aiMode=aiMode==='on-demand'?'continuous':'on-demand';appendMessage("Jarvis","AI mode: "+aiMode);});
+startCamMenuBtn.addEventListener('click',toggleCamera);
+imageUploadBtn.addEventListener('click',()=>imageInput.click());
+captureBtn.addEventListener('click',async()=>{await captureSnapshot();});
+
+aboutBtn.addEventListener('click',()=>{
+    aboutModal.classList.add('active');
+});
+modalCloseBtn.addEventListener('click',()=>{
+    aboutModal.classList.remove('active');
+});
+aboutModal.addEventListener('click',(e)=>{
+    if(e.target === aboutModal){
+        aboutModal.classList.remove('active');
+    }
+});
+
+async function toggleCamera(){
+  if(camBoxEl.classList.contains('visible')){
+    stopCamera();
+    camBoxEl.classList.remove('visible');
+    mainContentEl.classList.remove('with-camera');
+    startCamMenuBtn.textContent = 'Open Camera';
+    captureBtn.style.display = 'none';
+  } else {
+    camBoxEl.classList.add('visible');
+    mainContentEl.classList.add('with-camera');
+    startCamMenuBtn.textContent = 'Close Camera';
+    captureBtn.style.display = 'block';
+    await startCamera();
+  }
+}
+
+async function startCamera(){
+  if(runningCamera) return;
+  try{
+    let constraints={video:{facingMode:useBackCamera?'environment':'user'},audio:false};
+    currentStream=await navigator.mediaDevices.getUserMedia(constraints);
+    cameraEl.srcObject=currentStream;
+    runningCamera=true;
+    if(!cocoModel){cocoModel=await cocoSsd.load();}
+    cocoActive=true;analyzeLoop();
+    appendMessage("Jarvis","Camera started. Press Snap button to analyze.");
+  }catch(err){appendMessage("Jarvis","Camera error: "+err.message);}
+}
+
+function stopCamera(){if(!runningCamera) return;currentStream.getTracks().forEach(t=>t.stop());cameraEl.srcObject=null;runningCamera=false;cocoActive=false;cocoLabelsEl.textContent='COCO quick labels: —';visionResultEl.textContent='AI vision: (no analysis yet)';appendMessage("Jarvis","Camera stopped.");}
+
+async function analyzeLop(){if(!cocoActive||!runningCamera) return;try{const predictions=await cocoModel.detect(cameraEl,5);if(predictions&&predictions.length){cocoLabelsEl.textContent='COCO quick labels: '+predictions.slice(0,5).map(p=>`${p.class} (${Math.round(p.score*100)}%)`).join(', ');}else{cocoLabelsEl.textContent='COCO quick labels: None';}}catch(e){cocoLabelsEl.textContent='COCO quick labels: error';console.warn(e);}if(cocoActive)setTimeout(analyzeLoop,300);}
+
+async function captureSnapshot(){if(!runningCamera)return "Camera not active";const canvas=document.createElement('canvas');canvas.width=cameraEl.videoWidth||640;canvas.height=cameraEl.videoHeight||480;canvas.getContext('2d').drawImage(cameraEl,0,0,canvas.width,canvas.height);const dataUrl=canvas.toDataURL('image/jpeg',0.8);const base64=dataUrl.split(',')[1];visionResultEl.textContent='AI vision: analyzing...';const desc=await geminiVisionDescribe(base64);visionResultEl.textContent='AI vision: '+desc;appendMessage("Jarvis","Image analysis: "+desc);return desc;}
+
+imageInput.addEventListener('change',async(e)=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async()=>{const base64=reader.result.split(',')[1];const desc=await geminiVisionDescribe(base64);appendMessage("You","[Image uploaded]");appendMessage("Jarvis",desc);speak(desc);conversationHistory.push({role:"user",parts:[{text:"[Image uploaded]"}]});conversationHistory.push({role:"model",parts:[{text:desc}]});saveHistory();};
+  reader.readAsDataURL(file);
+});
+</script>
+</body>
+</html>
