@@ -863,22 +863,34 @@ async function speak(text) {
       return desc;
     }
 
-    // Splash screen logic
-    window.addEventListener('load', () => {
-      const splashScreen = document.getElementById('splash-screen');
-      const mainAppContainer = document.getElementById('main-app-container');
-      // Hide app initially
-      mainAppContainer.style.display = 'none';
-      // Show splash for 3 seconds
-      setTimeout(() => {
-        splashScreen.classList.add('fade-out');
-        setTimeout(() => {
-          splashScreen.style.display = 'none';
-          mainAppContainer.style.display = 'block';
-          document.body.style.padding = '15px';
-        }, 1000);
-      }, 3000);
-    });
+document.addEventListener('DOMContentLoaded', () => {
+  const splashScreen = document.getElementById('splash-screen');
+  const mainAppContainer = document.getElementById('main-app-container');
+
+  // Hide the main app initially
+  mainAppContainer.style.display = 'none';
+
+  const splashMinDuration = 3000; // Minimum time to show splash (in ms)
+  const fadeOutDuration = 1000;   // Match CSS fade-out transition
+
+  const hideSplash = () => {
+    splashScreen.classList.add('fade-out');
+    setTimeout(() => {
+      splashScreen.style.display = 'none';
+      mainAppContainer.style.display = 'block';
+      document.body.style.padding = '15px';
+    }, fadeOutDuration);
+  };
+
+  const splashStartTime = Date.now();
+
+  window.addEventListener('load', () => {
+    const elapsedTime = Date.now() - splashStartTime;
+    const remainingTime = Math.max(0, splashMinDuration - elapsedTime);
+
+    setTimeout(hideSplash, remainingTime);
+  });
+});
   </script>
 
 </body>
