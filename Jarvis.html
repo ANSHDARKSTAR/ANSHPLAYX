@@ -911,7 +911,7 @@ async function speak(text) {
       try {
         const predictions = await cocoModel.detect(cameraEl, 5); 
         if (predictions && predictions.length) {
-          cocoLabelsEl.textContent = 'COCO quick labels: ' +
+          cocoLabelsEl.textContent = 'COCO quick labels (may show inaccurate predictions): ' +
             predictions.slice(0, 5).map(p => `${p.class} (${Math.round(p.score * 100)}%)`).join(', ');
         } else {
           cocoLabelsEl.textContent = 'COCO quick labels: None';
