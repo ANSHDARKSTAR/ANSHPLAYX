@@ -277,21 +277,16 @@
 
     /* SPLASH SCREEN CSS */
     #splash-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: var(--text);
-      z-index: 999;
-      opacity: 1;
-      transition: opacity 1s ease-out;
-    }
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #0d1017;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 1s ease-out;
+    z-index: 9999;
+  }
 
     #splash-screen.fade-out {
       opacity: 0;
@@ -864,33 +859,25 @@ async function speak(text) {
     }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const splashScreen = document.getElementById('splash-screen');
-  const mainAppContainer = document.getElementById('main-app-container');
+    const splashScreen = document.getElementById('splash-screen');
+    const mainAppContainer = document.getElementById('main-app-container');
+    const splashMinDuration = 3000;
+    const fadeOutDuration = 1000;
+    const startTime = Date.now();
 
-  // Hide the main app initially
-  mainAppContainer.style.display = 'none';
+    window.addEventListener('load', () => {
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, splashMinDuration - elapsedTime);
 
-  const splashMinDuration = 3000; // Minimum time to show splash (in ms)
-  const fadeOutDuration = 1000;   // Match CSS fade-out transition
-
-  const hideSplash = () => {
-    splashScreen.classList.add('fade-out');
-    setTimeout(() => {
-      splashScreen.style.display = 'none';
-      mainAppContainer.style.display = 'block';
-      document.body.style.padding = '15px';
-    }, fadeOutDuration);
-  };
-
-  const splashStartTime = Date.now();
-
-  window.addEventListener('load', () => {
-    const elapsedTime = Date.now() - splashStartTime;
-    const remainingTime = Math.max(0, splashMinDuration - elapsedTime);
-
-    setTimeout(hideSplash, remainingTime);
+      setTimeout(() => {
+        splashScreen.classList.add('fade-out');
+        setTimeout(() => {
+          splashScreen.style.display = 'none';
+          mainAppContainer.style.display = 'block';
+        }, fadeOutDuration);
+      }, remainingTime);
+    });
   });
-});
   </script>
 
 </body>
