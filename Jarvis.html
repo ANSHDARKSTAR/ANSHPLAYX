@@ -489,17 +489,20 @@
       p.className = 'msg';
       p.innerHTML = `<strong>${sender}:</strong> ${text}`;
       chatEl.appendChild(p);
-      chatEl.scrollTop = chatEl.scrollHeight;
-    }
+    let currentAudio = null;
 
-    async function speak(text) {
+async function speak(text) {
   if (!text) return;
 
   const API_KEY = 'sk_0aa57c2533e56bfcec15310a07cf24b9b1402bceaad48b64';
   const voiceId = '1EmYoP3UnnnwhlJKovEy';
 
   try {
-    // Step 1: Show loading indicator
+    // Remove any existing loading message
+    const existingLoading = document.getElementById('voiceLoadingMsg');
+    if (existingLoading) existingLoading.remove();
+
+    // Show loading message
     const loadingMsgEl = document.createElement('div');
     loadingMsgEl.className = 'msg';
     loadingMsgEl.id = 'voiceLoadingMsg';
@@ -507,7 +510,13 @@
     chatEl.appendChild(loadingMsgEl);
     chatEl.scrollTop = chatEl.scrollHeight;
 
-    // Step 2: Request ElevenLabs TTS API
+    // Stop previous audio if playing
+    if (currentAudio && !currentAudio.paused) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
+    // Call ElevenLabs API
     const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
       method: 'POST',
       headers: {
@@ -527,27 +536,25 @@
 
     const audioBlob = await response.blob();
     const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
+    currentAudio = new Audio(audioUrl);
 
-    // Step 3: Play audio after it is fully ready
-    audio.addEventListener('canplaythrough', () => {
+    currentAudio.addEventListener('canplaythrough', () => {
       // Remove loading message
-      const existingLoading = document.getElementById('voiceLoadingMsg');
-      if (existingLoading) existingLoading.remove();
+      const loadingEl = document.getElementById('voiceLoadingMsg');
+      if (loadingEl) loadingEl.remove();
 
-      audio.play();
+      currentAudio.play();
     });
 
-    audio.load();
+    currentAudio.load();
 
   } catch (error) {
     console.error('ElevenLabs API error:', error);
-    const existingLoading = document.getElementById('voiceLoadingMsg');
-    if (existingLoading) existingLoading.remove();
+    const loadingEl = document.getElementById('voiceLoadingMsg');
+    if (loadingEl) loadingEl.remove();
     appendMessage("Jarvis", "⚠️ Voice synthesis error (ElevenLabs unavailable).");
   }
-    }// Fallback to browser speech synthesis
-  
+}
     const anshplayxKeywords = ["anshplayx", "kisne banaya", "creator", "who made you", "developer", "kya ho tum", "tum kaun ho"];
     const wikipediaKeywords = ["wikipedia", "wikipedia par", "who is", "what is", "tell me about"];
 
