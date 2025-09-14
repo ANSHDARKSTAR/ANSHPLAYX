@@ -499,6 +499,15 @@
   const voiceId = '1EmYoP3UnnnwhlJKovEy';
 
   try {
+    // Step 1: Show loading indicator
+    const loadingMsgEl = document.createElement('div');
+    loadingMsgEl.className = 'msg';
+    loadingMsgEl.id = 'voiceLoadingMsg';
+    loadingMsgEl.innerHTML = `<strong>Jarvis:</strong> 🔊 Generating voice, please wait...`;
+    chatEl.appendChild(loadingMsgEl);
+    chatEl.scrollTop = chatEl.scrollHeight;
+
+    // Step 2: Request ElevenLabs TTS API
     const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
       method: 'POST',
       headers: {
@@ -508,8 +517,8 @@
       body: JSON.stringify({
         text: text,
         voice_settings: {
-          stability: 0.75,
-          similarity_boost: 0.75
+          stability: 0.5,
+          similarity_boost: 0.5
         }
       })
     });
@@ -519,13 +528,25 @@
     const audioBlob = await response.blob();
     const audioUrl = URL.createObjectURL(audioBlob);
     const audio = new Audio(audioUrl);
-    audio.play();
+
+    // Step 3: Play audio after it is fully ready
+    audio.addEventListener('canplaythrough', () => {
+      // Remove loading message
+      const existingLoading = document.getElementById('voiceLoadingMsg');
+      if (existingLoading) existingLoading.remove();
+
+      audio.play();
+    });
+
+    audio.load();
+
   } catch (error) {
     console.error('ElevenLabs API error:', error);
+    const existingLoading = document.getElementById('voiceLoadingMsg');
+    if (existingLoading) existingLoading.remove();
     appendMessage("Jarvis", "⚠️ Voice synthesis error (ElevenLabs unavailable).");
-    // Do NOT fall back to browser voice.
   }
-  }   // Fallback to browser speech synthesis
+    }// Fallback to browser speech synthesis
   
     const anshplayxKeywords = ["anshplayx", "kisne banaya", "creator", "who made you", "developer", "kya ho tum", "tum kaun ho"];
     const wikipediaKeywords = ["wikipedia", "wikipedia par", "who is", "what is", "tell me about"];
