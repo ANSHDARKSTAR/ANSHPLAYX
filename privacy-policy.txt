@@ -1,0 +1,75 @@
+Effective Date: October 15, 2025
+App Name: ANSHPLAYX TOAST MAKER
+Developer: ANSHPLAYX
+
+
+---
+
+1. Introduction
+
+Welcome to ANSHPLAYX TOAST MAKER, an Android application developed by ANSHPLAYX.
+We value your privacy and are committed to protecting it.
+This Privacy Policy explains how your data is handled when you use the App.
+
+
+---
+
+2. Information Collection and Use
+
+This App is designed to work completely offline.
+We do not collect, store, share, or process any personal or non-personal user data.
+
+The App does not:
+
+Connect to the internet
+
+Use any third-party SDKs or APIs
+
+Display advertisements
+
+Track user behavior or analytics
+
+
+Your data stays entirely on your device.
+
+
+---
+
+3. Permissions
+
+The App may request minimal permissions only for local functionality, if required (for example, showing messages or saving settings).
+These permissions are used solely on your device and do not involve any data transfer or remote access.
+
+
+---
+
+4. Data Security
+
+Since the App does not collect or store data, there is no risk of unauthorized access, leakage, or misuse of personal information.
+
+
+---
+
+5. Children’s Privacy
+
+This App is suitable for users of all ages.
+It does not collect personal information from children or adults.
+
+
+---
+
+6. Changes to This Policy
+
+We may update this Privacy Policy from time to time.
+Any future updates will be posted within the App or on the developer’s page.
+
+
+---
+
+7. Contact
+
+If you have any questions or concerns about this Privacy Policy, feel free to reach out:
+📧 anshplayx@gmail.com
+
+
+---
