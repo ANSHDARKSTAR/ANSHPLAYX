@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Do Buttons — Link Example</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f7f8fb;
+    }
+    .btn {
+      appearance: none;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(20,20,40,0.08);
+      transition: transform .08s ease, box-shadow .12s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: linear-gradient(180deg,#2b8cff,#1766ff); color: white; }
+    .btn-secondary { background: linear-gradient(180deg,#efefef,#e1e1e1); color: #111; }
+    a { text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Anchor tags styled as buttons (recommended for links) -->
+  <a href="https://anshdarkstar.github.io/ANSHPLAYX/table.html">Table Admission</a>
+
+  <a href="https://anshdarkstar.github.io/ANSHPLAYX/modern.html">Modern table</a>
+
+  <!-- Optional JS alternative (uncomment if you prefer button elements that navigate) -->
+  <!--
+  <button class="btn btn-primary" onclick="window.open('https://xyz.com','_blank')">Go to xyz.com</button>
+  <button class="btn btn-secondary" onclick="window.open('https://zxy.com','_blank')">Go to zxy.com</button>
+  -->
+
+</body>
+</html>
