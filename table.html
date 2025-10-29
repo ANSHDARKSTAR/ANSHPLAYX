@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Purvanchal Public School — Admission Form</title>
+
+  <!-- jsPDF UMD -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+:root{
+  --accent:#1a4fc2;
+  --accent-dark:#0f3489;
+  --muted:#6b7280;
+  --border:rgba(255,255,255,0.25);
+  --card-bg:rgba(255,255,255,0.22);
+  --page-bg:#e3e7ee;
+  --table-border: rgba(255,255,255,0.35);
+}
+*{box-sizing:border-box}
+body{
+  font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.85), transparent 60%),
+    radial-gradient(circle at 75% 20%, rgba(255,255,255,0.7), transparent 55%),
+    radial-gradient(circle at 60% 75%, rgba(255,255,255,0.75), transparent 60%),
+    linear-gradient(180deg, #9fd5ff, #4a73ff);
+  background-attachment: fixed;
+  margin:20px;
+  color:#111;
+  display:flex;
+  justify-content:center;
+}
+.container{
+  width:900px;
+  max-width:96vw;
+}
+
+/* HEADER — glass strip */
+header.app-header{
+  background:var(--card-bg);
+  backdrop-filter:blur(14px);
+  border:2px solid var(--border);
+  padding:22px;
+  text-align:center;
+  font-weight:800;
+  font-size:22px;
+  border-radius:20px 20px 0 0;
+  box-shadow:0 8px 40px rgba(0,0,0,0.15);
+}
+
+/* CARD BODY */
+.card{
+  background:var(--card-bg);
+  backdrop-filter:blur(18px);
+  border:2px solid var(--border);
+  padding:18px;
+  border-radius:0 0 20px 20px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.20);
+}
+
+/* TABLE FORM */
+.form-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-bottom:6px;
+  table-layout: fixed;
+  background: rgba(255,255,255,0.05);
+}
+.form-table td, .form-table th{
+  border:1.5px solid var(--table-border);
+  padding:10px 12px;
+  vertical-align: middle;
+  background: rgba(255,255,255,0.06);
+}
+
+/* Fixed label column width as requested */
+.form-table .label-col{
+  width:220px; /* fixed label width (A option) */
+  font-weight:700;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  background: rgba(255,255,255,0.03);
+}
+
+/* Inputs */
+label{
+  display:block;
+  font-weight:600;
+  margin-bottom:4px;
+  font-size:13px;
+}
+input,select,textarea{
+  width:100%;
+  padding:9px 10px;
+  border-radius:10px;
+  border:1.2px solid rgba(255,255,255,0.45);
+  font-size:14px;
+  background:rgba(255,255,255,0.35);
+  backdrop-filter:blur(6px);
+  transition:border .15s, box-shadow .15s;
+  box-sizing:border-box;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(26,79,194,0.18);
+  outline:0;
+}
+textarea{min-height:90px;resize:vertical}
+
+/* Small column helper (keeps input compact visually) */
+.small input, .small select{ max-width:220px; }
+
+/* CTA */
+.actions{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  margin-top:14px;
+}
+button{
+  background:var(--accent);
+  color:white;
+  border:0;
+  padding:12px 20px;
+  border-radius:12px;
+  font-weight:700;
+  cursor:pointer;
+  font-size:15px;
+  transition:background .2s, transform .15s;
+}
+button.secondary{
+  background:transparent;
+  color:white;
+  border:1.2px solid rgba(255,255,255,0.18);
+  font-weight:700;
+}
+button:hover{background:var(--accent-dark);transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+
+.note{
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+  margin-top:10px;
+}
+
+/* Responsive: stack labels above inputs on narrow screens */
+@media(max-width:720px){
+  .form-table, .form-table tbody, .form-table tr, .form-table td, .form-table th{
+    display:block;
+    width:100%;
+  }
+  .form-table tr { margin-bottom:10px; }
+  .form-table td.label-col { width:100%; padding-bottom:6px; background:transparent; border:0; }
+  .form-table td.input-col { border:0; padding:0 0 12px 0; }
+  .form-table td.input-col > * { width:100%; }
+  .small input, .small select{ max-width:100%; }
+}
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="app-header">PURVANCHAL PUBLIC SCHOOL</header>
+
+    <div class="card" role="main">
+      <form id="admissionForm" autocomplete="off">
+        <table class="form-table" role="presentation" aria-label="Admission form table">
+          <tbody>
+            <tr>
+              <td class="label-col"><label for="studentName">Student Name *</label></td>
+              <td class="input-col"><input id="studentName" name="studentName" type="text" required placeholder="Full name"></td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="classSelect">Class *</label></td>
+              <td class="input-col">
+                <select id="classSelect" name="classSelect" required>
+                  <option value="">Select class</option>
+                  <option>Nursery</option>
+                  <option>LKG</option>
+                  <option>UKG</option>
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                  <option>6</option>
+                  <option>7</option>
+                  <option>8</option>
+                  <option>9</option>
+                  <option>10</option>
+                  <option>11</option>
+                  <option>12</option>
+                </select>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="fatherName">Father's Name *</label></td>
+              <td class="input-col"><input id="fatherName" name="fatherName" type="text" required placeholder="Father's name"></td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="motherName">Mother's Name *</label></td>
+              <td class="input-col"><input id="motherName" name="motherName" type="text" required placeholder="Mother's name"></td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="dob">Date of Birth *</label></td>
+              <td class="input-col small"><input id="dob" name="dob" type="date" required></td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="gender">Gender *</label></td>
+              <td class="input-col small">
+                <select id="gender" name="gender" required>
+                  <option value="">Select gender</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="mobile">Mobile No. *</label></td>
+              <td class="input-col small"><input id="mobile" name="mobile" type="tel" pattern="[0-9]{10}" placeholder="10-digit" required></td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="email">Email ID</label></td>
+              <td class="input-col"><input id="email" name="email" type="email" placeholder="student@example.com"></td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="state">State</label></td>
+              <td class="input-col"><input id="state" name="state" type="text" placeholder="State"></td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="city">City</label></td>
+              <td class="input-col"><input id="city" name="city" type="text" placeholder="City"></td>
+            </tr>
+
+            <tr>
+              <td class="label-col"><label for="address">Address</label></td>
+              <td class="input-col"><input id="address" name="address" type="text" placeholder="Street, locality, landmark..."></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="actions">
+          <button type="submit" id="submitBtn">Submit & Download PDF</button>
+         
+        </div>
+        <div class="note">© ALL RIGHTS RESERVED</div>
+      </form>
+    </div>
+  </div>
+
+<script>
+  (function(){
+    const { jsPDF } = window.jspdf;
+
+    // Configuration
+    const STAMP_URL = "https://i.postimg.cc/520pGzfL/IMG-20251029-WA0006.png"; // your provided URL
+    const PDF_FILENAME = "Admission_Form.pdf"; // fixed name as chosen
+    const DATE_FORMAT_DDMMYYYY = true; // we use DD-MM-YYYY
+
+    // Utility: format date to DD-MM-YYYY
+    function formatDateDDMMYYYY(date){
+      const d = new Date(date);
+      if (isNaN(d)) return "";
+      const day = String(d.getDate()).padStart(2,'0');
+      const mon = String(d.getMonth()+1).padStart(2,'0');
+      const yr = d.getFullYear();
+      return `${day}-${mon}-${yr}`;
+    }
+
+    // Utility: today's date in DD-MM-YYYY
+    function todayDDMMYYYY(){
+      const d = new Date();
+      const day = String(d.getDate()).padStart(2,'0');
+      const mon = String(d.getMonth()+1).padStart(2,'0');
+      const yr = d.getFullYear();
+      return `${day}-${mon}-${yr}`;
+    }
+
+    // Convert image URL to base64 via fetch -> blob -> dataURL
+    // Returns Promise<string|null>
+    async function imageUrlToBase64(url){
+      try{
+        const resp = await fetch(url, {mode: 'cors', cache: 'force-cache'});
+        if(!resp.ok) throw new Error('fetch fail');
+        const blob = await resp.blob();
+        return await new Promise((res, rej) => {
+          const reader = new FileReader();
+          reader.onloadend = () => res(reader.result);
+          reader.onerror = rej;
+          reader.readAsDataURL(blob);
+        });
+      }catch(e){
+        // fallback attempt: try loading via an Image -> canvas (may also fail because CORS)
+        try{
+          const img = await new Promise((resolve, reject) => {
+            const i = new Image();
+            i.crossOrigin = "anonymous";
+            i.onload = () => resolve(i);
+            i.onerror = reject;
+            i.src = url + (url.indexOf('?')===-1 ? '?v=1' : '&v=1'); // cache-busting attempt
+            // timeout
+            setTimeout(()=> reject(new Error('img load timeout')), 5000);
+          });
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img,0,0);
+          return canvas.toDataURL('image/png');
+        }catch(err2){
+          return null;
+        }
+      }
+    }
+
+    // Build PDF (table/grid style)
+    async function generatePDFFromData(dataObj){
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      // Make everything bold/dark as requested (F3)
+      pdf.setFont('Times','bold');
+      // Page dimensions
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+
+      // HEADER
+      pdf.setFontSize(18);
+      pdf.text("PURVANCHAL PUBLIC SCHOOL", pageW/2, 18, { align: 'center' });
+      pdf.setFontSize(14);
+      pdf.text("ADMISSION FORM", pageW/2, 26, { align: 'center' });
+
+      // Date at top-right
+      pdf.setFontSize(10);
+      const dateStr = DATE_FORMAT_DDMMYYYY ? todayDDMMYYYY() : new Date().toLocaleDateString();
+      pdf.text(`Date: ${dateStr}`, pageW - 14, 18, { align: 'right' });
+
+      // Table properties
+      const marginLeft = 14;
+      const tableTop = 38;
+      const labelColW = 50;
+      const valueColW = pageW - marginLeft*2 - labelColW;
+      const rowH = 10;
+      let y = tableTop;
+
+      // Fields in order (labels exactly as required)
+      const rows = [
+        ["Student Name", dataObj.studentName || ""],
+        ["Father's Name", dataObj.fatherName || ""],
+        ["Mother's Name", dataObj.motherName || ""],
+        ["Class", dataObj.classSelected || ""],
+        ["Date of Birth", dataObj.dobFormatted || ""],
+        ["Gender", dataObj.gender || ""],
+        ["Email ID", dataObj.email || ""],
+        ["Mobile No.", dataObj.mobile || ""],
+        ["Address", dataObj.address || ""],
+        ["State", dataObj.state || ""],
+        ["City", dataObj.city || ""]
+      ];
+
+      // Draw table header line (optional)
+      pdf.setDrawColor(90);
+      pdf.setLineWidth(0.6);
+
+      for(let i=0;i<rows.length;i++){
+        // Check page break
+        if(y + rowH + 60 > pageH){ // leave space for stamp and caption
+          pdf.addPage();
+          y = 20;
+        }
+
+        // Draw label cell border
+        pdf.rect(marginLeft, y, labelColW, rowH, 'S');
+        // Draw value cell border
+        pdf.rect(marginLeft + labelColW, y, valueColW, rowH, 'S');
+
+        // Write label (left padding 3mm)
+        pdf.setFontSize(11);
+        pdf.text(String(rows[i][0]), marginLeft + 3, y + 7);
+
+        // Write value (wrap if needed)
+        pdf.setFontSize(11);
+        const val = String(rows[i][1]);
+        // If value is long, split into lines fitting valueColW - 6 mm
+        const splitLines = pdf.splitTextToSize(val, valueColW - 6);
+        for(let li=0; li<splitLines.length; li++){
+          pdf.text(splitLines[li], marginLeft + labelColW + 3, y + 7 + li*6);
+        }
+
+        // Increase y by at least rowH (if wrapped lines used, increase accordingly)
+        const neededH = Math.max(rowH, 6 * splitLines.length + 4);
+        y += neededH;
+      }
+
+      // Space before stamp
+      y += 6;
+
+      // Try to fetch and embed stamp image (small, left)
+      const stampBase64 = await imageUrlToBase64(STAMP_URL);
+      if(stampBase64){
+        // Choose stamp width 30mm small
+        const stampW = 30;
+        // Create an offscreen image to compute ratio
+        const img = new Image();
+        img.src = stampBase64;
+        await new Promise((res)=>{ img.onload = res; img.onerror = res; });
+        const stampH = (img.naturalHeight && img.naturalWidth) ? (img.naturalHeight/img.naturalWidth)*stampW : 20;
+        // If stamp would exceed page bottom, move to next page
+        if(y + stampH + 20 > pageH){
+          pdf.addPage();
+          y = 20;
+        }
+        // Add image at left margin
+        pdf.addImage(stampBase64, 'PNG', marginLeft, y, stampW, stampH);
+        // Caption under stamp (two lines)
+        const capLine1 = "Authorized Signatory";
+        const capLine2 = "Purvanchal Public School";
+        pdf.setFontSize(10);
+        pdf.text(capLine1, marginLeft, y + stampH + 6);
+        pdf.text(capLine2, marginLeft, y + stampH + 12);
+      } else {
+        // If stamp could not be embedded, still leave caption spot (without image)
+        const capLine1 = "Authorized Signatory";
+        const capLine2 = "Purvanchal Public School";
+        // If space insufficient, new page
+        if(y + 24 > pageH){
+          pdf.addPage();
+          y = 20;
+        }
+        // Put caption left-bottom (no image)
+        pdf.setFontSize(10);
+        pdf.text(capLine1, marginLeft, y);
+        pdf.text(capLine2, marginLeft, y + 6);
+      }
+
+      // Save/download
+      pdf.save(PDF_FILENAME);
+    }
+
+    // Gather form values and validate basic required fields
+    function collectFormValues(){
+      const studentName = document.getElementById('studentName').value.trim();
+      const fatherName = document.getElementById('fatherName').value.trim();
+      const motherName = document.getElementById('motherName').value.trim();
+      const classSelected = document.getElementById('classSelect').value.trim();
+      const dobRaw = document.getElementById('dob').value;
+      const dobFormatted = dobRaw ? formatDateDDMMYYYY(dobRaw) : "";
+      const gender = document.getElementById('gender').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const state = document.getElementById('state').value.trim();
+      const city = document.getElementById('city').value.trim();
+
+      return {
+        studentName, fatherName, motherName, classSelected, dobFormatted,
+        gender, email, mobile, address, state, city
+      };
+    }
+
+    // Form submit handler
+    const form = document.getElementById('admissionForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const sampleBtn = document.getElementById('downloadSample');
+
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Generating PDF...";
+      try{
+        // Basic required validation
+        const vals = collectFormValues();
+        if(!vals.studentName){ alert("Please enter Student Name."); submitBtn.disabled=false; submitBtn.textContent="Submit & Download PDF"; return; }
+        if(!vals.fatherName){ alert("Please enter Father's Name."); submitBtn.disabled=false; submitBtn.textContent="Submit & Download PDF"; return; }
+        if(!vals.motherName){ alert("Please enter Mother's Name."); submitBtn.disabled=false; submitBtn.textContent="Submit & Download PDF"; return; }
+        if(!vals.classSelected){ alert("Please select Class."); submitBtn.disabled=false; submitBtn.textContent="Submit & Download PDF"; return; }
+        if(!document.getElementById('dob').value){ alert("Please select Date of Birth."); submitBtn.disabled=false; submitBtn.textContent="Submit & Download PDF"; return; }
+        if(!document.getElementById('gender').value){ alert("Please select Gender."); submitBtn.disabled=false; submitBtn.textContent="Submit & Download PDF"; return; }
+        if(!document.getElementById('mobile').value.match(/^[0-9]{10}$/)){ if(!confirm("Mobile number looks invalid. Continue?")){ submitBtn.disabled=false; submitBtn.textContent="Submit & Download PDF"; return; } }
+        // Generate PDF
+        await generatePDFFromData(vals);
+      }catch(err){
+        console.error(err);
+        alert("Error while generating PDF. Check console for details.");
+      }finally{
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit & Download PDF";
+      }
+    });
+
+    // Sample PDF button (fills sample data and downloads)
+    sampleBtn.addEventListener('click', async function(){
+      // Pre-fill some sample values
+      document.getElementById('studentName').value = "Ansh Kumar";
+      document.getElementById('fatherName').value = "Rakesh Kumar";
+      document.getElementById('motherName').value = "Suman Devi";
+      document.getElementById('classSelect').value = "5";
+      document.getElementById('dob').value = "2010-08-10";
+      document.getElementById('gender').value = "Male";
+      document.getElementById('email').value = "abc@gmail.com";
+      document.getElementById('mobile').value = "9876543210";
+      document.getElementById('address').value = "Shivpur, Varanasi";
+      document.getElementById('state').value = "Uttar Pradesh";
+      document.getElementById('city').value = "Varanasi";
+
+      // Wait a tick for inputs to reflect (not strictly necessary)
+      await new Promise(res => setTimeout(res, 120));
+      // Collect and generate
+      const vals = collectFormValues();
+      // Generate immediately
+      try{
+        await generatePDFFromData(vals);
+      }catch(e){
+        console.error(e);
+        alert("Failed to create sample PDF.");
+      }
+    });
+
+    // Accessibility: prevent form submission on Enter for single-line fields accidentally
+    form.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' && e.target.tagName !== 'TEXTAREA'){
+        // prevent default submit on Enter inside inputs; user should click the button
+        e.preventDefault();
+      }
+    });
+
+  })();
+</script>
+</body>
+                    </html>
