@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ADMISSION IN TABLE</title>
+
+  <style>
+    body{
+  font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.85), transparent 60%),
+    radial-gradient(circle at 75% 20%, rgba(255,255,255,0.7), transparent 55%),
+    radial-gradient(circle at 60% 75%, rgba(255,255,255,0.75), transparent 60%),
+    linear-gradient(180deg, #9fd5ff, #4a73ff);
+
+  color:#111;
+  
+}
+
+    h2 {
+      margin: 0;
+      color: #fff;
+      
+      padding:8px;
+      
+      text-align: center;
+      
+    }
+
+    table {
+      width: 800px;
+      
+      border-collapse:collapse;
+     
+      
+      border-radius: 1px;
+     
+    }
+
+    td, th {
+      border: 1px solid #cbd5e1;
+      padding: 12px 14px;
+      font-size: 15px;
+     
+    }
+
+    td:first-child {
+      font-weight: bold;
+      width: 35%;
+    }
+
+    input, select, textarea {
+      width: 95%;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      
+      
+      transition: 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      
+      box-shadow: 0 0 4px rgba(43, 63, 174, 0.3);
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .buttons {
+      text-align: center;
+      padding: 14px;
+      
+      border-top: 1px solid #ddd;
+    }
+
+    input[type="submit"],
+     {
+      background-color: #2b3fae;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+
+
+    p.footer {
+      text-align: center;
+      
+      font-size: 15px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 700px) {
+      table {
+        width: 95%;
+      }
+      td, th {
+        font-size: 14px;
+      }
+    }
+  </style>
+
+</head>
+<body>
+
+  <form>
+    <table>
+      <tr>
+        <th colspan="1"><h2>ADMISSION FORM</h2></th>
+      </tr>
+
+      <tr>
+        <td>Student Name<br>
+        <input type="text" name="studentName" placeholder="Enter full name" required>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Father's Name
+        <input type="text" name="fatherName" placeholder="Enter father's name" required></td>
+      </tr>
+
+      <tr>
+        <td>Mother's Name
+        <input type="text" name="motherName" placeholder="Enter mother's name" required></td>
+      </tr>
+
+      <tr>
+        <td>Class
+        
+          <select name="classSelect" required>
+            <option value="">Select class</option>
+            <option>Nursery</option>
+            <option>LKG</option>
+            <option>UKG</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+            <option>11</option>
+            <option>12</option>
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Date of Birth
+        <input type="date" name="dob" required></td>
+      </tr>
+
+      <tr>
+        <td>Gender
+          <select name="gender" required>
+            <option value="">Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Mobile No.
+        <input type="tel" name="mobile" placeholder="10-digit number" required></td>
+      </tr>
+
+      <tr>
+        <td>Email ID
+    <input type="email" name="email" placeholder="example@gmail.com"></td>
+      </tr>
+
+      <tr>
+        <td>State
+        <input type="text" name="state" placeholder="Enter state"></td>
+      </tr>
+
+      <tr>
+        <td>City
+        <input type="text" name="city" placeholder="Enter city"></td>
+      </tr>
+
+      <tr>
+        <td>Address
+        <textarea name="address" rows="3" placeholder="Enter full address"></textarea></td>
+      </tr>
+
+      <tr>
+        <td colspan="2" class="buttons">
+          <input type="submit" value="Submit Form">
+          
+        </td>
+      </tr>
+    </table>
+  </form>
+
+  <p class="footer">© PURVANCHAL PUBLIC SCHOOL — All Rights Reserved</p>
+
+</body>
+</html>
