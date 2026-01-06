@@ -182,13 +182,53 @@ function onGoogleLogin(res){
     location.reload();
 }
 
-function init(){
-    const u=JSON.parse(localStorage.getItem('user'));
-    if(!u) return;
-    authOverlay.style.display='none';
-    avatar.src=u.picture;
+function init() {
+    const u = JSON.parse(localStorage.getItem('user'));
+    
+    // 1. If no user is logged in, show the Auth Overlay and STOP.
+    if (!u) {
+        document.getElementById('authOverlay').style.display = 'flex';
+        // Note: We don't call render(movies) here because the user is locked out.
+        // If you want to see movies WITHOUT logging in, comment out the "if(!u) return" line.
+        return; 
+    }
+
+    // 2. If user exists, hide login screen
+    document.getElementById('authOverlay').style.display = 'none';
+
+    // 3. Update User UI (Fixed the 'avatar' error)
+    const userIcon = document.getElementById('uIcon');
+    if(u.picture) {
+        userIcon.innerHTML = `<img src="${u.picture}" style="width:100%; border-radius:50%">`;
+    } else {
+        userIcon.innerText = u.name ? u.name[0] : '?';
+    }
+    
+    document.getElementById('uEmail').innerText = u.email;
+
+    // 4. FINALLY render the movies
     render(movies);
 }
+
+function render(data) {
+    const grid = document.getElementById('movieGrid');
+    if (!grid) return; // Safety check
+
+    if (data.length === 0) {
+        grid.innerHTML = "<p style='color:#666;'>No movies found in this category.</p>";
+        return;
+    }
+
+    grid.innerHTML = data.map(m => `
+        <div class="movie-card" onclick="openTheater('${m.title}')">
+            <img src="${m.img}" alt="${m.title}">
+            <div style="position:absolute; bottom:10px; left:10px; background:rgba(0,0,0,0.7); padding:2px 8px; border-radius:4px; font-size:10px; color:var(--gold);">
+                ${m.cat}
+            </div>
+        </div>
+    `).join('');
+}
+
 
 function render(data) {
             document.getElementById('movieGrid').innerHTML = data.map(m => `
