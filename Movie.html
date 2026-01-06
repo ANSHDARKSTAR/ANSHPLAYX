@@ -3,112 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CineLux | The Complete Platform</title>
+<title>CineLux</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
 :root {
-    --gold: #D4AF37;
-    --bg: #050505;
-    --glass: rgba(255,255,255,0.05);
-    --border: rgba(255,255,255,0.12);
+    --gold:#D4AF37;
+    --bg:#050505;
+    --glass:rgba(255,255,255,.05);
+    --border:rgba(255,255,255,.12);
 }
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }
-body { background:var(--bg); color:white; overflow-x:hidden; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif;}
+body{background:var(--bg);color:#fff}
 
 /* AUTH */
-#authOverlay {
-    position:fixed; inset:0; background:var(--bg);
-    display:flex; align-items:center; justify-content:center;
-    z-index:10000; text-align:center;
+#authOverlay{
+    position:fixed;inset:0;
+    background:#050505;
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;text-align:center;
 }
 
 /* NAV */
-nav {
-    display:grid; grid-template-columns:1fr 2fr 1fr;
-    align-items:center; padding:0 5%; height:90px;
-    position:fixed; width:100%; z-index:2000;
-    background:linear-gradient(to bottom,rgba(5,5,5,.9),transparent);
+nav{
+    position:fixed;top:0;width:100%;height:90px;
+    display:grid;grid-template-columns:1fr 2fr 1fr;
+    padding:0 5%;align-items:center;
+    background:linear-gradient(to bottom,#050505cc,transparent);
     backdrop-filter:blur(15px);
 }
-.search-box {
-    background:var(--glass); border:1px solid var(--border);
-    padding:10px 20px; border-radius:100px;
-    display:flex; align-items:center;
+.search-box{
+    background:var(--glass);
+    border:1px solid var(--border);
+    padding:10px 20px;border-radius:50px;
 }
-.search-box input {
-    background:none; border:none; color:white;
-    outline:none; width:100%; margin-left:10px;
+.search-box input{
+    width:100%;background:none;border:none;color:#fff;outline:none;
 }
 
 /* HERO */
-.hero {
-    height:80vh; padding:0 8%; display:flex; align-items:center;
+.hero{
+    height:80vh;padding:0 8%;
+    display:flex;align-items:center;
     background:
         linear-gradient(to right,#050505 30%,transparent),
         url('https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=1600') center/cover;
 }
 
 /* SIDEBAR */
-.sidebar {
-    position:fixed; left:-400px; top:0;
-    width:320px; height:100vh; background:#000;
-    z-index:4000; padding:60px 40px;
-    transition:.5s; border-right:1px solid var(--border);
+.sidebar{
+    position:fixed;left:-320px;top:0;
+    width:320px;height:100vh;
+    background:#000;padding:60px 40px;
+    border-right:1px solid var(--border);
+    transition:.4s;z-index:3000;
 }
-.sidebar.open { left:0; }
-.side-link {
-    display:block; font-size:18px; padding:10px 0;
-    color:#ccc; cursor:pointer; transition:.3s;
+.sidebar.open{left:0}
+.side-link{
+    padding:10px 0;color:#ccc;cursor:pointer;
 }
-.side-link:hover { color:var(--gold); transform:translateX(5px); }
+.side-link:hover{color:var(--gold)}
 
 /* CONTENT */
-.container { padding:40px 8%; }
-.panel { display:none; animation:fadeIn .4s ease; }
-.active-panel { display:block; }
+.container{padding:40px 8%}
+.panel{display:none}
+.active{display:block}
 
-.movie-grid {
+.movie-grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
     gap:20px;
 }
-.movie-card {
-    height:320px; border-radius:15px; overflow:hidden;
-    border:1px solid var(--border);
-    cursor:pointer; transition:.4s;
+.movie-card{
+    height:320px;border-radius:15px;
+    overflow:hidden;border:1px solid var(--border);
+    cursor:pointer;transition:.3s;
 }
-.movie-card:hover { transform:scale(1.05); border-color:var(--gold); }
-.movie-card img { width:100%; height:100%; object-fit:cover; }
+.movie-card:hover{transform:scale(1.05);border-color:var(--gold)}
+.movie-card img{width:100%;height:100%;object-fit:cover}
 
 /* PLAYER */
-#theater {
-    position:fixed; inset:0; background:#000;
-    z-index:9000; display:none; flex-direction:column;
+#theater{
+    position:fixed;inset:0;background:#000;
+    display:none;flex-direction:column;z-index:9000;
 }
-video { width:100%; height:90vh; }
-
-@keyframes fadeIn {
-    from { opacity:0; transform:translateY(10px); }
-    to { opacity:1; transform:translateY(0); }
-}
+video{width:100%;height:90vh}
 </style>
 </head>
 
 <body>
 
-<!-- AUTH SCREEN -->
+<!-- AUTH -->
 <div id="authOverlay">
     <div>
-        <h1 style="font-size:3.5rem;margin-bottom:20px;">
+        <h1 style="font-size:3.5rem">
             CINE<span style="color:var(--gold)">LUX</span>
         </h1>
 
+        <!-- GOOGLE LOGIN -->
         <div id="g_id_onload"
              data-client_id="739537461326-r2gspogeoruch5a4b2m6kui2v9e1lchp.apps.googleusercontent.com"
-             data-callback="handleGoogleLogin"
+             data-callback="onGoogleLogin"
              data-auto_prompt="false">
         </div>
 
@@ -124,136 +121,109 @@ video { width:100%; height:90vh; }
 
 <!-- VIDEO PLAYER -->
 <div id="theater">
-    <div style="padding:15px 5%;display:flex;justify-content:space-between;">
-        <h2 id="mTitle">Now Playing</h2>
-        <button onclick="closeTheater()" style="color:var(--gold);background:none;border:none;font-weight:800;cursor:pointer;">
+    <div style="padding:15px 5%;display:flex;justify-content:space-between">
+        <h2 id="mTitle"></h2>
+        <button onclick="closeTheater()" style="background:none;border:none;color:var(--gold);font-weight:800">
             CLOSE ✕
         </button>
     </div>
     <video id="vid" controls autoplay>
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4">
     </video>
 </div>
 
 <!-- NAV -->
 <nav>
-    <div onclick="toggleMenu()" style="color:var(--gold);font-weight:800;cursor:pointer;">☰ MENU</div>
-
+    <div onclick="toggleMenu()" style="color:var(--gold);font-weight:800;cursor:pointer">☰ MENU</div>
     <div class="search-box">
-        <input id="searchInput" placeholder="Search Movies..." onkeyup="search()">
+        <input placeholder="Search..." onkeyup="search(this.value)">
     </div>
-
-    <img id="uIcon"
-         onclick="showPanel('account')"
-         style="width:35px;height:35px;border-radius:50%;cursor:pointer;justify-self:end;">
+    <img id="avatar" style="width:35px;height:35px;border-radius:50%">
 </nav>
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-    <div class="side-link" onclick="showPanel('home')">Discovery</div>
-    <hr style="border:0;border-top:1px solid #222;margin:10px 0;">
-    <div class="side-link" onclick="filter('Action')">Action</div>
+    <div class="side-link" onclick="show('home')">Discovery</div>
     <div class="side-link" onclick="filter('Sci-Fi')">Sci-Fi</div>
-    <div class="side-link" onclick="filter('Horror')">Horror</div>
-    <div class="side-link" onclick="filter('Drama')">Drama</div>
-    <hr style="border:0;border-top:1px solid #222;margin:10px 0;">
-    <div class="side-link" onclick="showPanel('account')">Account</div>
-    <div class="side-link" style="color:#ff4444" onclick="logout()">Logout</div>
+    <div class="side-link" onclick="filter('Action')">Action</div>
+    <div class="side-link" onclick="logout()" style="color:#ff4444">Logout</div>
 </div>
 
 <!-- HERO -->
-<section class="hero" id="heroBanner">
+<section class="hero" id="hero">
     <div>
-        <p style="color:var(--gold);font-weight:800;letter-spacing:4px;">NEW RELEASE</p>
-        <h1 style="font-size:4.5rem;">INTERSTELLAR</h1>
-        <button onclick="openTheater('Interstellar')" style="margin-top:20px;padding:15px 40px;font-weight:800;background:var(--gold);border:none;border-radius:10px;">
-            STREAM NOW
+        <p style="color:var(--gold);letter-spacing:4px">NEW</p>
+        <h1 style="font-size:4.5rem">INTERSTELLAR</h1>
+        <button onclick="openTheater('Interstellar')"
+            style="margin-top:20px;padding:15px 40px;font-weight:800;background:var(--gold);border:none;border-radius:10px">
+            STREAM
         </button>
     </div>
 </section>
 
 <!-- CONTENT -->
 <div class="container">
-    <div id="homePanel" class="panel active-panel">
-        <h2 id="catTitle">DISCOVERY</h2>
-        <div id="movieGrid" class="movie-grid"></div>
-    </div>
-
-    <div id="accountPanel" class="panel">
-        <h1>Account</h1>
-        <p>Email: <span id="uEmail"></span></p>
+    <div id="home" class="panel active">
+        <div class="movie-grid" id="grid"></div>
     </div>
 </div>
 
 <script>
-const movies = [
-    { title:"Interstellar", cat:"Sci-Fi", img:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600" },
-    { title:"The Batman", cat:"Action", img:"https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600" },
-    { title:"Dune", cat:"Sci-Fi", img:"https://images.unsplash.com/photo-1506466010722-395aa2bef877?w=600" },
-    { title:"The Conjuring", cat:"Horror", img:"https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=600" }
+const movies=[
+ {title:'Interstellar',cat:'Sci-Fi',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600'},
+ {title:'Dune',cat:'Sci-Fi',img:'https://images.unsplash.com/photo-1506466010722-395aa2bef877?w=600'},
+ {title:'Batman',cat:'Action',img:'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600'}
 ];
 
-function handleGoogleLogin(res) {
-    const user = parseJwt(res.credential);
-    localStorage.setItem('cl_user', JSON.stringify(user));
+function onGoogleLogin(res){
+    const payload = JSON.parse(atob(res.credential.split('.')[1]));
+    localStorage.setItem('user',JSON.stringify(payload));
     location.reload();
 }
 
-function parseJwt(token) {
-    return JSON.parse(atob(token.split('.')[1]));
-}
-
-function init() {
-    const user = JSON.parse(localStorage.getItem('cl_user'));
-    if (!user) return;
-    document.getElementById('authOverlay').style.display = 'none';
-    document.getElementById('uEmail').innerText = user.email;
-    document.getElementById('uIcon').src = user.picture;
+function init(){
+    const u=JSON.parse(localStorage.getItem('user'));
+    if(!u) return;
+    authOverlay.style.display='none';
+    avatar.src=u.picture;
     render(movies);
 }
 
-function render(data) {
-    movieGrid.innerHTML = data.map(m =>
-        `<div class="movie-card" onclick="openTheater('${m.title}')">
+function render(list){
+    grid.innerHTML=list.map(m=>`
+        <div class="movie-card" onclick="openTheater('${m.title}')">
             <img src="${m.img}">
-        </div>`
-    ).join('');
+        </div>`).join('');
 }
 
-function search() {
-    const q = searchInput.value.toLowerCase();
-    render(movies.filter(m => m.title.toLowerCase().includes(q)));
+function search(q){
+    render(movies.filter(m=>m.title.toLowerCase().includes(q.toLowerCase())));
 }
 
-function filter(c) {
-    catTitle.innerText = c.toUpperCase();
-    render(movies.filter(m => m.cat === c));
-    showPanel('home');
+function filter(c){
+    render(movies.filter(m=>m.cat===c));
 }
 
-function openTheater(t) {
-    mTitle.innerText = t;
-    theater.style.display = 'flex';
+function openTheater(t){
+    mTitle.innerText=t;
+    theater.style.display='flex';
 }
 
-function closeTheater() {
-    theater.style.display = 'none';
+function closeTheater(){
+    theater.style.display='none';
     vid.pause();
 }
 
-function showPanel(p) {
-    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active-panel'));
-    document.getElementById(p + 'Panel').classList.add('active-panel');
-    heroBanner.style.display = p === 'home' ? 'flex' : 'none';
-    toggleMenu(false);
+function toggleMenu(){
+    sidebar.classList.toggle('open');
 }
 
-function toggleMenu(force) {
-    if (force === false) sidebar.classList.remove('open');
-    else sidebar.classList.toggle('open');
+function show(id){
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
-function logout() {
+function logout(){
     localStorage.clear();
     location.reload();
 }
