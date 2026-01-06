@@ -18,6 +18,53 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif;}
 body{background:var(--bg);color:#fff}
 
+/* Container for the buttons */
+.movie-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0; /* Hidden by default */
+    transition: 0.3s ease;
+    z-index: 2;
+}
+
+/* Show overlay on hover */
+.movie-card:hover .movie-overlay {
+    opacity: 1;
+}
+
+/* Button Styles */
+.opt-btn {
+    width: 80%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.play-btn {
+    background: var(--gold);
+    color: black;
+}
+
+.watch-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.opt-btn:hover {
+    transform: scale(1.05);
+}
+
 /* AUTH */
 #authOverlay{
     position:fixed;inset:0;
@@ -257,6 +304,37 @@ function search() {
             render(movies.filter(m => m.title.toLowerCase().includes(q)));
         }
 
+function render(data) {
+    const grid = document.getElementById('movieGrid');
+    if (!grid) return;
+
+    grid.innerHTML = data.map(m => `
+        <div class="movie-card">
+            <img src="${m.img}" alt="${m.title}">
+            
+            <div class="movie-overlay">
+                <button class="opt-btn play-btn" onclick="openTheater('${m.title}')">▶ PLAY</button>
+                <button class="opt-btn watch-btn" onclick="addToWatchlist('${m.title}')">+ WATCHLIST</button>
+            </div>
+
+            <div class="movie-info" style="position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 15px;">
+                <h3 style="font-size: 1rem; margin: 0;">${m.title}</h3>
+                <span style="color: var(--gold); font-size: 0.8rem;">★ ${m.rating || '8.5'}</span>
+            </div>
+
+            <div style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); padding:2px 8px; border-radius:4px; font-size:10px; color:var(--gold);">
+                ${m.cat}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Add this function to handle the watchlist alert
+function addToWatchlist(title) {
+    alert(title + " added to your watchlist!");
+}
+
+
         function filter(c) {
             document.getElementById('catTitle').innerText = c.toUpperCase();
             render(movies.filter(m => m.cat === c));
@@ -290,4 +368,4 @@ function logout(){
 </script>
 
 </body>
-            </html>
+    </html>
