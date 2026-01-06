@@ -233,6 +233,9 @@ body{background:var(--bg);color:#fff}
             { title: "The Martian", rating: "8.0", img: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=400&q=80" }
         ];
 
+let myWatchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
+
+
 function onGoogleLogin(res){
     const payload = JSON.parse(atob(res.credential.split('.')[1]));
     localStorage.setItem('user',JSON.stringify(payload));
@@ -308,31 +311,35 @@ function render(data) {
     const grid = document.getElementById('movieGrid');
     if (!grid) return;
 
-    grid.innerHTML = data.map(m => `
-        <div class="movie-card">
-            <img src="${m.img}" alt="${m.title}">
-            
-            <div class="movie-overlay">
-                <button class="opt-btn play-btn" onclick="openTheater('${m.title}')">▶ PLAY</button>
-                <button class="opt-btn watch-btn" onclick="addToWatchlist('${m.title}')">+ WATCHLIST</button>
-            </div>
+    grid.innerHTML = data.map(m => {
+        // Check karein ki movie watchlist mein hai ya nahi
+        const isSaved = myWatchlist.includes(m.title);
 
-            <div class="movie-info" style="position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 15px;">
-                <h3 style="font-size: 1rem; margin: 0;">${m.title}</h3>
-                <span style="color: var(--gold); font-size: 0.8rem;">★ ${m.rating || '8.5'}</span>
-            </div>
+        return `
+            <div class="movie-card">
+                <img src="${m.img}" alt="${m.title}">
+                
+                <div class="movie-overlay">
+                    <button class="opt-btn play-btn" onclick="openTheater('${m.title}')">▶ PLAY</button>
+                    
+                    <button class="opt-btn watch-btn" onclick="toggleWatchlist('${m.title}')">
+                        ${isSaved ? '✓ SAVED' : '+ WATCHLIST'}
+                    </button>
+                </div>
 
-            <div style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); padding:2px 8px; border-radius:4px; font-size:10px; color:var(--gold);">
-                ${m.cat}
+                <div class="movie-info" style="position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 15px;">
+                    <h3 style="font-size: 1rem; margin: 0;">${m.title}</h3>
+                    <span style="color: var(--gold); font-size: 0.8rem;">★ ${m.rating || '8.5'}</span>
+                </div>
+
+                <div style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); padding:2px 8px; border-radius:4px; font-size:10px; color:var(--gold);">
+                    ${m.cat}
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
-// Add this function to handle the watchlist alert
-function addToWatchlist(title) {
-    alert(title + " added to your watchlist!");
-}
 
 
         function filter(c) {
@@ -355,6 +362,25 @@ function addToWatchlist(title) {
             toggleMenu(false);
         }
 
+function toggleWatchlist(title) {
+    const index = myWatchlist.indexOf(title);
+    
+    if (index === -1) {
+        // Agar list mein nahi hai, toh add karein
+        myWatchlist.push(title);
+    } else {
+        // Agar pehle se hai, toh remove karein (Un-save)
+        myWatchlist.splice(index, 1);
+    }
+
+    // Browser memory mein save karein
+    localStorage.setItem('watchlist', JSON.stringify(myWatchlist));
+    
+    // UI update karne ke liye dobara render karein
+    render(movies); 
+}
+
+
         function toggleMenu(open = null) {
             const s = document.getElementById('sidebar');
             if(open === false) s.classList.remove('open');
@@ -368,4 +394,4 @@ function logout(){
 </script>
 
 </body>
-    </html>
+                              </html>
