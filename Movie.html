@@ -171,6 +171,8 @@ body{background:var(--bg);color:#fff}
     <div class="sidebar" id="sidebar">
         <div class="side-link" onclick="showPanel('home')">Discovery</div>
         <hr style="border:0; border-top:1px solid #222; margin:10px 0;">
+        <div class="side-link" onclick="showWatchlist()">My Watchlist</div>
+
         <span style="font-size:10px; color:#444; letter-spacing:2px;">CATEGORIES</span>
         <div class="side-link" onclick="filter('Action')">Action</div>
         <div class="side-link" onclick="filter('Sci-Fi')">Sci-Fi</div>
@@ -362,22 +364,44 @@ function render(data) {
             toggleMenu(false);
         }
 
+function showWatchlist() {
+    // 1. Filter the main movies list based on titles stored in myWatchlist
+    const savedMovies = movies.filter(m => myWatchlist.includes(m.title));
+    
+    // 2. Change the Title on the page
+    document.getElementById('catTitle').innerText = "MY WATCHLIST";
+    
+    // 3. Show the Home panel where the grid is
+    showPanel('home');
+    
+    // 4. Render only the saved movies
+    if (savedMovies.length === 0) {
+        document.getElementById('movieGrid').innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #666;">
+                <h3>Your watchlist is empty</h3>
+                <p>Click + WATCHLIST on any movie to save it here.</p>
+            </div>`;
+    } else {
+        render(savedMovies);
+    }
+}
+
+
 function toggleWatchlist(title) {
     const index = myWatchlist.indexOf(title);
-    
     if (index === -1) {
-        // Agar list mein nahi hai, toh add karein
         myWatchlist.push(title);
     } else {
-        // Agar pehle se hai, toh remove karein (Un-save)
         myWatchlist.splice(index, 1);
     }
-
-    // Browser memory mein save karein
     localStorage.setItem('watchlist', JSON.stringify(myWatchlist));
-    
-    // UI update karne ke liye dobara render karein
-    render(movies); 
+
+    // If we are currently looking at the Watchlist, refresh with filtered results
+    if (document.getElementById('catTitle').innerText === "MY WATCHLIST") {
+        showWatchlist();
+    } else {
+        render(movies); // Otherwise just refresh the normal grid
+    }
 }
 
 
@@ -394,4 +418,4 @@ function logout(){
 </script>
 
 </body>
-                              </html>
+    </html>
