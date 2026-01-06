@@ -193,11 +193,11 @@ body{background:var(--bg);color:#fff}
             <button class="btn-gold" style="width:auto; padding: 15px 40px;" onclick="openTheater('Interstellar')">STREAM NOW</button>
         </div>
     </section>
+<div id="homePanel" class="panel active-panel">
+    <h2 id="catTitle" style="margin-bottom:30px; font-weight:300; letter-spacing:2px;">DISCOVERY</h2>
+    <div class="movie-grid" id="movieGrid"></div>
+</div>
 
-    <div class="container">
-        <div id="homePanel" class="panel active-panel">
-            <div class="movie-grid" id="movieGrid"></div>
-        </div>
 
         <div id="accountPanel" class="panel">
             <h1>Account</h1>
@@ -272,37 +272,87 @@ function init() {
     render(movies);
 }
 
+// Keep only ONE render function
 function render(data) {
     const grid = document.getElementById('movieGrid');
-    if (!grid) return; // Safety check
+    if (!grid) return;
 
-    if (data.length === 0) {
-        grid.innerHTML = "<p style='color:#666;'>No movies found in this category.</p>";
-        return;
-    }
+    grid.innerHTML = data.map(m => {
+        const isSaved = myWatchlist.includes(m.title);
 
-    grid.innerHTML = data.map(m => `
-        <div class="movie-card" onclick="openTheater('${m.title}')">
-            <img src="${m.img}" alt="${m.title}">
-                                    <div class="movie-info">
-                            <h3>${movie.title}</h3>
-                            <span class="rating">★ ${movie.rating}</span>
-                        </div>
-            <div style="position:absolute; bottom:10px; left:10px; background:rgba(0,0,0,0.7); padding:2px 8px; border-radius:4px; font-size:10px; color:var(--gold);">
-                ${m.cat}
+        return `
+            <div class="movie-card">
+                <img src="${m.img}" alt="${m.title}">
+                
+                <div class="movie-overlay">
+                    <button class="opt-btn play-btn" onclick="openTheater('${m.title}')">▶ PLAY</button>
+                    <button class="opt-btn watch-btn" onclick="toggleWatchlist('${m.title}')">
+                        ${isSaved ? '✓ SAVED' : '+ WATCHLIST'}
+                    </button>
+                </div>
+
+                <div class="movie-info">
+                    <h3 style="font-size: 1rem; margin: 0;">${m.title}</h3>
+                    <span style="color: var(--gold); font-size: 0.8rem;">★ ${m.rating || '8.5'}</span>
+                </div>
+
+                <div style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); padding:2px 8px; border-radius:4px; font-size:10px; color:var(--gold);">
+                    ${m.cat || 'Movie'}
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
+function search() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    render(movies.filter(m => m.title.toLowerCase().includes(q)));
+}
 
-function render(data) {
-            document.getElementById('movieGrid').innerHTML = data.map(m => `
-                <div class="movie-card" onclick="openTheater('${m.title}')">
-                    <img src="${m.img}">
-                </div>
-            `).join('');
-        }
+function filter(c) {
+    // We need to ensure catTitle exists or just use an alert/header
+    const titleEl = document.getElementById('catTitle');
+    if(titleEl) titleEl.innerText = c.toUpperCase();
+    
+    render(movies.filter(m => m.cat === c));
+    showPanel('home');
+}
+
+function showWatchlist() {
+    const savedMovies = movies.filter(m => myWatchlist.includes(m.title));
+    const titleEl = document.getElementById('catTitle');
+    if(titleEl) titleEl.innerText = "MY WATCHLIST";
+    
+    showPanel('home');
+    
+    if (savedMovies.length === 0) {
+        document.getElementById('movieGrid').innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #666;">
+                <h3>Your watchlist is empty</h3>
+                <p>Click + WATCHLIST on any movie to save it here.</p>
+            </div>`;
+    } else {
+        render(savedMovies);
+    }
+}
+
+function toggleWatchlist(title) {
+    const index = myWatchlist.indexOf(title);
+    if (index === -1) {
+        myWatchlist.push(title);
+    } else {
+        myWatchlist.splice(index, 1);
+    }
+    localStorage.setItem('watchlist', JSON.stringify(myWatchlist));
+
+    const titleEl = document.getElementById('catTitle');
+    if (titleEl && titleEl.innerText === "MY WATCHLIST") {
+        showWatchlist();
+    } else {
+        render(movies);
+    }
+}
+
 
 function search() {
             const q = document.getElementById('searchInput').value.toLowerCase();
@@ -329,10 +379,7 @@ function render(data) {
                     </button>
                 </div>
 
-                <div class="movie-info" style="position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 15px;">
-                    <h3 style="font-size: 1rem; margin: 0;">${m.title}</h3>
-                    <span style="color: var(--gold); font-size: 0.8rem;">★ ${m.rating || '8.5'}</span>
-                </div>
+               
 
                 <div style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); padding:2px 8px; border-radius:4px; font-size:10px; color:var(--gold);">
                     ${m.cat}
@@ -385,6 +432,15 @@ function showWatchlist() {
         render(savedMovies);
     }
 }
+
+window.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.querySelector('nav div'); // The Menu button
+    
+    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuBtn) {
+        toggleMenu(false);
+    }
+});
 
 
 function toggleWatchlist(title) {
