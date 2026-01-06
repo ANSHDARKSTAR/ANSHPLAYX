@@ -169,7 +169,8 @@ body{background:var(--bg);color:#fff}
     </nav>
 
     <div class="sidebar" id="sidebar">
-        <div class="side-link" onclick="homePanel">Discovery</div>
+        <div class="side-link" onclick="showAllMovies()">Discovery</div>
+
         <hr style="border:0; border-top:1px solid #222; margin:10px 0;">
         <div class="side-link" onclick="showWatchlist()">My Watchlist</div>
 
@@ -188,6 +189,10 @@ body{background:var(--bg);color:#fff}
 
     <section class="hero" id="heroBanner">
         <div>
+        <h1 onclick="showAllMovies()" style="cursor:pointer">
+    CINE<span style="color:var(--gold)">LUX</span>
+</h1>
+
             <p style="color:var(--gold); font-weight:800; letter-spacing:4px;">NEW RELEASE</p>
             <h1 style="font-size: 4.5rem; line-height:1; margin: 15px 0;">INTERSTELLAR</h1>
             <button class="btn-gold" style="width:auto; padding: 15px 40px;" onclick="openTheater('Interstellar')">STREAM NOW</button>
@@ -459,6 +464,20 @@ function toggleWatchlist(title) {
         render(movies); // Otherwise just refresh the normal grid
     }
 }
+function showAllMovies() {
+    // 1. Change the heading back to DISCOVERY
+    const titleEl = document.getElementById('catTitle');
+    if (titleEl) titleEl.innerText = "DISCOVERY";
+
+    // 2. Make sure we are on the home panel
+    showPanel('home');
+
+    // 3. Render the full array
+    render(movies);
+    
+    // 4. Close the menu
+    toggleMenu(false);
+}
 
 
         function toggleMenu(open = null) {
@@ -474,4 +493,4 @@ function logout(){
 </script>
 
 </body>
-                </html>
+            </html>
