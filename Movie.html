@@ -120,60 +120,86 @@ video{width:100%;height:90vh}
 </div>
 
 <!-- VIDEO PLAYER -->
-<div id="theater">
-    <div style="padding:15px 5%;display:flex;justify-content:space-between">
-        <h2 id="mTitle"></h2>
-        <button onclick="closeTheater()" style="background:none;border:none;color:var(--gold);font-weight:800">
-            CLOSE ✕
-        </button>
+
+    <div id="theater">
+        <div style="padding: 15px 5%; display: flex; justify-content: space-between;">
+            <h2 id="mTitle">Now Playing</h2>
+            <button onclick="closeTheater()" style="color:var(--gold); background:none; border:none; cursor:pointer; font-weight:800;">CLOSE ✕</button>
+        </div>
+        <video id="vid" controls autoplay><source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4"></video>
     </div>
-    <video id="vid" controls autoplay>
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4">
-    </video>
-</div>
 
-<!-- NAV -->
-<nav>
-    <div onclick="toggleMenu()" style="color:var(--gold);font-weight:800;cursor:pointer">☰ MENU</div>
-    <div class="search-box">
-        <input placeholder="Search..." onkeyup="search(this.value)">
+    <nav>
+        <div onclick="toggleMenu()" style="color:var(--gold); cursor:pointer; font-weight:800;">☰ MENU</div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search Movies..." onkeyup="search()">
+        </div>
+        <div onclick="showPanel('account')" id="uIcon" style="width:35px; height:35px; border-radius:50%; background:var(--gold); color:black; display:flex; align-items:center; justify-content:center; font-weight:800; cursor:pointer; justify-self: end;">?</div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <div class="side-link" onclick="showPanel('home')">Discovery</div>
+        <hr style="border:0; border-top:1px solid #222; margin:10px 0;">
+        <span style="font-size:10px; color:#444; letter-spacing:2px;">CATEGORIES</span>
+        <div class="side-link" onclick="filter('Action')">Action</div>
+        <div class="side-link" onclick="filter('Sci-Fi')">Sci-Fi</div>
+        <div class="side-link" onclick="filter('Horror')">Horror</div>
+        <div class="side-link" onclick="filter('Drama')">Drama</div>
+        <div class="side-link" onclick="filter('Documentary')">Documentary</div>
+        <hr style="border:0; border-top:1px solid #222; margin:10px 0;">
+        <div class="side-link" onclick="showPanel('account')">Account Details</div>
+        <div class="side-link" onclick="showPanel('settings')">Settings</div>
+        <div class="side-link" onclick="showPanel('contact')">Contact Support</div>
+        <div class="side-link" style="color:#ff4444" onclick="logout()">Logout</div>
     </div>
-    <img id="avatar" style="width:35px;height:35px;border-radius:50%">
-</nav>
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-    <div class="side-link" onclick="show('home')">Discovery</div>
-    <div class="side-link" onclick="filter('Sci-Fi')">Sci-Fi</div>
-    <div class="side-link" onclick="filter('Action')">Action</div>
-    <div class="side-link" onclick="logout()" style="color:#ff4444">Logout</div>
-</div>
+    <section class="hero" id="heroBanner">
+        <div>
+            <p style="color:var(--gold); font-weight:800; letter-spacing:4px;">NEW RELEASE</p>
+            <h1 style="font-size: 4.5rem; line-height:1; margin: 15px 0;">INTERSTELLAR</h1>
+            <button class="btn-gold" style="width:auto; padding: 15px 40px;" onclick="openTheater('Interstellar')">STREAM NOW</button>
+        </div>
+    </section>
 
-<!-- HERO -->
-<section class="hero" id="hero">
-    <div>
-        <p style="color:var(--gold);letter-spacing:4px">NEW</p>
-        <h1 style="font-size:4.5rem">INTERSTELLAR</h1>
-        <button onclick="openTheater('Interstellar')"
-            style="margin-top:20px;padding:15px 40px;font-weight:800;background:var(--gold);border:none;border-radius:10px">
-            STREAM
-        </button>
+    <div class="container">
+        <div id="homePanel" class="panel active-panel">
+            <h2 id="catTitle" style="margin-bottom:30px; font-weight:300;">DISCOVERY</h2>
+            <div class="movie-grid" id="movieGrid"></div>
+        </div>
+
+        <div id="accountPanel" class="panel">
+            <h1>Account</h1>
+            <div class="card">
+                <p>Email: <span id="uEmail"></span></p>
+                <p style="margin-top:10px;">Membership: <span style="color:var(--gold)">CineLux Pro</span></p>
+            </div>
+        </div>
+
+        <div id="settingsPanel" class="panel">
+            <h1>Settings</h1>
+            <div class="card">
+                <p>Auto-play next episode: <input type="checkbox" checked></p>
+                <p style="margin-top:20px;">Streaming Quality: 4K Ultra HD</p>
+            </div>
+        </div>
+
+        <div id="contactPanel" class="panel">
+            <h1>Contact Support</h1>
+            <div class="card">
+                <input type="text" class="input-f" placeholder="Subject">
+                <textarea class="input-f" placeholder="How can we help?" style="height:150px;"></textarea>
+                <button class="btn-gold" onclick="alert('Support Message Sent!')">Send Message</button>
+            </div>
+        </div>
     </div>
-</section>
 
-<!-- CONTENT -->
-<div class="container">
-    <div id="home" class="panel active">
-        <div class="movie-grid" id="grid"></div>
-    </div>
-</div>
-
-<script>
-const movies=[
- {title:'Interstellar',cat:'Sci-Fi',img:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600'},
- {title:'Dune',cat:'Sci-Fi',img:'https://images.unsplash.com/photo-1506466010722-395aa2bef877?w=600'},
- {title:'Batman',cat:'Action',img:'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600'}
-];
+    <script>
+        const movies = [
+            { title: "Interstellar", cat: "Sci-Fi", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=600" },
+            { title: "The Batman", cat: "Action", img: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600" },
+            { title: "Dune", cat: "Sci-Fi", img: "https://images.unsplash.com/photo-1506466010722-395aa2bef877?w=600" },
+            { title: "The Conjuring", cat: "Horror", img: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=600" }
+        ];
 
 function onGoogleLogin(res){
     const payload = JSON.parse(atob(res.credential.split('.')[1]));
@@ -232,4 +258,4 @@ init();
 </script>
 
 </body>
-</html>
+            </html>
