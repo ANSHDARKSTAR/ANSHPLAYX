@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed PDF Storage</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 350px; }
+        .btn { background: #007bff; color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-view { background: #6c757d; }
+        #status { margin-top: 15px; font-size: 14px; color: #28a745; font-weight: bold; }
+        
+        /* PDF Layout (Hidden) */
+        #pdf-content { position: absolute; left: -9999px; width: 210mm; background: white; padding: 20mm; color: black; line-height: 2.2; }
+        .justify { text-align: justify; font-size: 18px; }
+        .bold { font-weight: bold; border-bottom: 1px solid black; }
+        .footer { margin-top: 50px; display: flex; justify-content: space-between; }
+        .sign-img { width: 140px; mix-blend-mode: multiply; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>घोषणा-पत्र</h2>
+        <p>श्रेया सिंह</p>
+        <button class="btn" onclick="saveToIndexedDB()">Download & Save to DB</button>
+        <button class="btn btn-view" onclick="viewFromDB()">View Saved PDF</button>
+        <p id="status"></p>
+    </div>
+
+    <div id="pdf-content">
+        <p style="text-align: center; font-size: 13px;">संख्या- 874 / एक-9-2014-रा-9, दिनाँक 16 जून, 2014 का संलग्नक</p>
+        <h2 style="text-align: center; text-decoration: underline;">स्वप्रमाणित घोषणा-पत्र</h2>
+        <p class="justify">
+            मैं, <span class="bold">श्रेया सिंह</span> पुत्री <span class="bold">संजय सिंह</span>, उम्र <span class="bold">16</span> वर्ष, व्यवसाय <span class="bold">छात्रा</span>, निवासी ग्राम <span class="bold">अवरही कृतपुरा, कुंदूर</span> प्रमाणित करते हुये घोषणा करती हूँ...
+        </p>
+        <div class="footer">
+            <div><p>स्थान: <span class="bold">अवरही कृतपुरा</span></p></div>
+            <div>
+                <img src="https://i.imgur.com/7pP7Nf4.png" class="sign-img">
+                <p>नाम: <span class="bold">श्रेया सिंह</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database Setup (IndexedDB)
+        const db = new Dexie("PDF_Database");
+        db.version(1).stores({ documents: "id" });
+
+        async function saveToIndexedDB() {
+            document.getElementById('status').innerText = "Generating PDF...";
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('pdf-content');
+
+            const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+
+            const pdfBlob = pdf.output('blob');
+
+            // Save Blob to IndexedDB (No 5MB Limit)
+            try {
+                await db.documents.put({ id: "shreya_form", file: pdfBlob });
+                document.getElementById('status').innerText = "Success: Saved in Database!";
+                pdf.save('Shreya_Declaration.pdf');
+            } catch (err) {
+                document.getElementById('status').innerText = "Error saving to DB!";
+                console.error(err);
+            }
+        }
+
+        async function viewFromDB() {
+            const doc = await db.documents.get("shreya_form");
+            if (doc) {
+                const url = URL.createObjectURL(doc.file);
+                window.open(url);
+            } else {
+                alert("Koi PDF save nahi mila!");
+            }
+        }
+    </script>
+</body>
+</html>
