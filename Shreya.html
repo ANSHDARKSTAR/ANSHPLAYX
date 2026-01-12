@@ -3,56 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Downloader — Shreya Singh</title>
+    <title>Universal Downloader — Shreya Singh</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        :root { --accent: #1a4fc2; }
+        :root {
+            --primary: #1a4fc2;
+            --secondary: #28a745;
+            --glass: rgba(255, 255, 255, 0.25);
+        }
+
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #e3e7ee, #9fd5ff);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
             margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
-        .card {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(15px);
-            padding: 40px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3);
-            text-align: center; width: 350px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        }
-        .btn {
-            background: var(--accent); color: white; border: none; padding: 15px 30px;
-            font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%;
-        }
-        #status { margin-top: 15px; font-size: 14px; font-weight: bold; color: #111; }
 
-        /* Yeh hissa PDF banega - Screen par hidden hai */
-        #pdf-template {
-            position: absolute; left: -9999px; width: 210mm; 
-            background: white; padding: 25mm; color: black; line-height: 2.2;
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            padding: 35px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.4);
+            text-align: center; width: 90%; max-width: 380px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        .pdf-title { text-align: center; text-decoration: underline; font-weight: bold; font-size: 24px; }
-        .pdf-body { font-size: 19px; text-align: justify; margin-top: 30px; }
-        .bold-u { font-weight: bold; border-bottom: 1px solid black; }
+
+        .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        
+        button {
+            border: none; padding: 16px; border-radius: 12px;
+            font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-pdf { background: var(--primary); }
+        .btn-png { background: var(--secondary); }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        
+        #status { margin-top: 20px; font-size: 14px; font-weight: bold; color: #111; }
+
+        /* A4 Hidden Layout */
+        #printable-area {
+            position: absolute; left: -9999px; width: 210mm;
+            background: white; padding: 25mm; color: black; line-height: 2.3;
+        }
+
+        .title { text-align: center; text-decoration: underline; font-weight: bold; font-size: 24px; margin-bottom: 30px; }
+        .body-text { font-size: 19px; text-align: justify; }
+        .bold-u { font-weight: bold; border-bottom: 1px solid black; padding: 0 3px; }
         .footer { margin-top: 60px; display: flex; justify-content: space-between; }
-        .sign-text { font-family: cursive; font-size: 26px; color: #00008b; }
+        
+        .sign-img { width: 160px; height: auto; mix-blend-mode: multiply; margin-bottom: -5px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>Self-Declaration</h2>
-        <p>श्रेया सिंह</p>
-        <button id="dlBtn" class="btn" onclick="processPDF()">Download .pdf</button>
-        <div id="status">System Ready</div>
+    <div class="container">
+        <h2 style="margin:0;">घोषणा-पत्र</h2>
+        <p style="margin:5px 0 20px;">श्रेया सिंह — 2026</p>
+        
+        <div class="btn-group">
+            <button class="btn-pdf" onclick="handleDownload('pdf')">Download as .PDF</button>
+            <button class="btn-png" onclick="handleDownload('png')">Download as .PNG Image</button>
+        </div>
+        
+        <div id="status">Ready to Download</div>
     </div>
 
-    <div id="pdf-template">
-        <p style="text-align:center; font-size:13px;">संख्या- 874 / एक-9-2014-रा-9, दिनाँक 16 जून, 2014 का संलग्नक</p>
-        <h1 class="pdf-title">स्वप्रमाणित घोषणा-पत्र</h1>
+    <div id="printable-area">
+        <p style="text-align:center; font-size:12px;">संख्या- 874 / एक-9-2014-रा-9, दिनाँक 16 जून, 2014 का संलग्नक</p>
+        <h1 class="title">स्वप्रमाणित घोषणा-पत्र</h1>
         
-        <div class="pdf-body">
+        <div class="body-text">
             मैं, <span class="bold-u">श्रेया सिंह</span> पुत्री <span class="bold-u">संजय सिंह</span>, 
             उम्र <span class="bold-u">16</span> वर्ष, व्यवसाय <span class="bold-u">छात्रा</span>, 
             निवासी ग्राम <span class="bold-u">अवरही कृतपुरा, कुंदूर</span> 
@@ -66,50 +88,49 @@
             </div>
             <div style="text-align: left;">
                 <p>आवेदिका के हस्ताक्षर: <br>
-                <span class="sign-text">Shreya Singh</span></p>
-                <p>आवेदिका का नाम: <span class="bold-u">श्रेया सिंह</span></p>
+                    <img src="https://i.postimg.cc/j5kDj3Mp/IMG-20260112-WA0009.jpg" class="sign-img" alt="Signature">
+                </p>
+                <p>नाम: <span class="bold-u">श्रेया सिंह</span></p>
             </div>
         </div>
     </div>
 
     <script>
-        async function processPDF() {
-            const btn = document.getElementById('dlBtn');
+        async function handleDownload(format) {
             const status = document.getElementById('status');
-
-            // 1. Check if libraries loaded
-            if (typeof window.jspdf === 'undefined') {
-                status.innerText = "Error: Library not loaded. Check Internet.";
-                status.style.color = "red";
-                return;
-            }
-
-            btn.disabled = true;
-            status.innerText = "Generating PDF...";
+            const element = document.getElementById('printable-area');
+            status.innerText = "Processing... Please wait.";
+            status.style.color = "blue";
 
             try {
-                const { jsPDF } = window.jspdf;
-                const element = document.getElementById('pdf-template');
+                // Render HTML to Canvas
+                const canvas = await html2canvas(element, { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: false,
+                    backgroundColor: "#ffffff"
+                });
 
-                // 2. Convert HTML to high-quality image first
-                const canvas = await html2canvas(element, { scale: 2 });
-                const imgData = canvas.toDataURL('image/png');
+                const dataUrl = canvas.toDataURL('image/png');
 
-                // 3. Create PDF and add image
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+                if (format === 'pdf') {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    pdf.addImage(dataUrl, 'PNG', 0, 0, 210, 297);
+                    pdf.save("Shreya_Singh_Declaration.pdf");
+                } else {
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = "Shreya_Singh_Declaration.png";
+                    link.click();
+                }
 
-                // 4. DOWNLOAD WITH .PDF EXTENSION
-                pdf.save("Shreya_Singh_Declaration.pdf");
-
-                status.innerText = "Success! File Downloaded.";
+                status.innerText = "Successfully Downloaded!";
                 status.style.color = "green";
             } catch (err) {
                 console.error(err);
-                status.innerText = "Failed to generate PDF.";
+                status.innerText = "Error! Connection or Library Issue.";
                 status.style.color = "red";
-            } finally {
-                btn.disabled = false;
             }
         }
     </script>
