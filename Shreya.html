@@ -3,136 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Declaration Downloader</title>
+    <title>PDF Downloader — Shreya Singh</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
 
     <style>
-        :root { --accent: #1a4fc2; --glass: rgba(255, 255, 255, 0.2); }
+        :root { --accent: #1a4fc2; }
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-            margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh;
+            background: linear-gradient(135deg, #e3e7ee, #9fd5ff);
+            margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
-        .container {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            padding: 30px; border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.3);
-            text-align: center; width: 90%; max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        .card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            padding: 40px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.3);
+            text-align: center; width: 350px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
         }
         .btn {
-            background: var(--accent); color: white; border: none;
-            padding: 15px 25px; border-radius: 10px; font-weight: bold;
-            width: 100%; cursor: pointer; font-size: 16px;
+            background: var(--accent); color: white; border: none; padding: 15px 30px;
+            font-size: 18px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%;
         }
-        .btn:disabled { background: #888; cursor: not-allowed; }
-        #msg { margin-top: 15px; font-size: 14px; font-weight: bold; }
-        
-        /* Hidden Template for PDF */
+        #status { margin-top: 15px; font-size: 14px; font-weight: bold; color: #111; }
+
+        /* Yeh hissa PDF banega - Screen par hidden hai */
         #pdf-template {
             position: absolute; left: -9999px; width: 210mm; 
             background: white; padding: 25mm; color: black; line-height: 2.2;
         }
-        .pdf-ref { text-align: center; font-size: 12px; margin-bottom: 20px; }
-        .pdf-title { text-align: center; font-weight: bold; font-size: 22px; text-decoration: underline; margin-bottom: 30px; }
-        .pdf-body { font-size: 18px; text-align: justify; }
-        .bold { font-weight: bold; border-bottom: 1px solid black; }
+        .pdf-title { text-align: center; text-decoration: underline; font-weight: bold; font-size: 24px; }
+        .pdf-body { font-size: 19px; text-align: justify; margin-top: 30px; }
+        .bold-u { font-weight: bold; border-bottom: 1px solid black; }
         .footer { margin-top: 60px; display: flex; justify-content: space-between; }
-        .sign { width: 140px; mix-blend-mode: multiply; }
+        .sign-text { font-family: cursive; font-size: 26px; color: #00008b; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>स्वप्रमाणित घोषणा-पत्र</h2>
+    <div class="card">
+        <h2>Self-Declaration</h2>
         <p>श्रेया सिंह</p>
-        <button id="mainBtn" class="btn" onclick="generatePDF()">Download PDF</button>
-        <div id="msg">Checking System...</div>
+        <button id="dlBtn" class="btn" onclick="processPDF()">Download .pdf</button>
+        <div id="status">System Ready</div>
     </div>
 
     <div id="pdf-template">
-        <div class="pdf-ref">संख्या- 874 / एक-9-2014-रा-9, दिनाँक 16 जून, 2014 का संलग्नक</div>
-        <div class="pdf-title">स्वप्रमाणित घोषणा-पत्र</div>
+        <p style="text-align:center; font-size:13px;">संख्या- 874 / एक-9-2014-रा-9, दिनाँक 16 जून, 2014 का संलग्नक</p>
+        <h1 class="pdf-title">स्वप्रमाणित घोषणा-पत्र</h1>
+        
         <div class="pdf-body">
-            मैं, <span class="bold">श्रेया सिंह</span> पुत्री <span class="bold">संजय सिंह</span>,
-            उम्र <span class="bold">16</span> वर्ष, व्यवसाय <span class="bold">छात्रा</span>, 
-            निवासी ग्राम <span class="bold">अवरही कृतपुरा, कुंदूर</span> 
+            मैं, <span class="bold-u">श्रेया सिंह</span> पुत्री <span class="bold-u">संजय सिंह</span>, 
+            उम्र <span class="bold-u">16</span> वर्ष, व्यवसाय <span class="bold-u">छात्रा</span>, 
+            निवासी ग्राम <span class="bold-u">अवरही कृतपुरा, कुंदूर</span> 
             प्रमाणित करते हुये घोषणा करती हूँ कि आवेदन पत्र में दिये गये विवरण/तथ्य मेरी व्यक्तिगत जानकारी एवं विश्वास में शुद्ध एवं सत्य हैं। मैं मिथ्या विवरणों/तथ्यों को देने के परिणामों से भली-भाँति अवगत हूँ। यदि आवेदन पत्र में दिये गये कोई विवरण/तथ्य मिथ्या पाये जाते हैं, तो मैं, मेरे विरूद्ध भा० द० वि० 1860 की धारा-199 व 200 एवं प्रभावी किसी अन्य विधि के अंतर्गत अभियोजन एवं दण्ड के लिये स्वयं उत्तरदायी होऊँगी।
         </div>
+
         <div class="footer">
-            <div style="text-align: left;">
-                <p>स्थान: <span class="bold">अवरही कृतपुरा</span></p>
-                <p>दिनाँक: <span class="bold">12-01-2026</span></p>
+            <div>
+                <p>स्थान: <span class="bold-u">अवरही कृतपुरा</span></p>
+                <p>दिनाँक: <span class="bold-u">12-01-2026</span></p>
             </div>
             <div style="text-align: left;">
-                <p>हस्ताक्षर:<br>
-                    <img src="https://i.imgur.com/7pP7Nf4.png" class="sign">
-                </p>
-                <p>नाम: <span class="bold">श्रेया सिंह</span></p>
+                <p>आवेदिका के हस्ताक्षर: <br>
+                <span class="sign-text">Shreya Singh</span></p>
+                <p>आवेदिका का नाम: <span class="bold-u">श्रेया सिंह</span></p>
             </div>
         </div>
     </div>
 
     <script>
-        const msg = document.getElementById('msg');
-        const btn = document.getElementById('mainBtn');
+        async function processPDF() {
+            const btn = document.getElementById('dlBtn');
+            const status = document.getElementById('status');
 
-        // Check if libraries are loaded every 1 second
-        const checkLibs = setInterval(() => {
-            if (window.jspdf && window.html2canvas && window.Dexie) {
-                msg.innerText = "System Ready";
-                msg.style.color = "green";
-                clearInterval(checkLibs);
-            } else {
-                msg.innerText = "Connecting to Library... Please wait";
-                msg.style.color = "orange";
-            }
-        }, 1000);
-
-        async function generatePDF() {
-            if (!window.jspdf || !window.html2canvas) {
-                alert("Library abhi bhi load nahi hui hai. Please page refresh karein aur internet check karein.");
+            // 1. Check if libraries loaded
+            if (typeof window.jspdf === 'undefined') {
+                status.innerText = "Error: Library not loaded. Check Internet.";
+                status.style.color = "red";
                 return;
             }
 
             btn.disabled = true;
-            msg.innerText = "Generating PDF...";
+            status.innerText = "Generating PDF...";
 
             try {
                 const { jsPDF } = window.jspdf;
                 const element = document.getElementById('pdf-template');
-                
-                const canvas = await html2canvas(element, { 
-                    scale: 2, 
-                    useCORS: true,
-                    allowTaint: true
-                });
 
+                // 2. Convert HTML to high-quality image first
+                const canvas = await html2canvas(element, { scale: 2 });
                 const imgData = canvas.toDataURL('image/png');
+
+                // 3. Create PDF and add image
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
 
-                // Save to IndexedDB ( Dexie )
-                const db = new Dexie("AppDB");
-                db.version(1).stores({ docs: "id" });
-                const blob = pdf.output('blob');
-                await db.docs.put({ id: "shreya_form", file: blob });
+                // 4. DOWNLOAD WITH .PDF EXTENSION
+                pdf.save("Shreya_Singh_Declaration.pdf");
 
-                // Direct Download for Mobile
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = "Shreya_Declaration.pdf";
-                link.click();
-
-                msg.innerText = "Downloaded Successfully!";
+                status.innerText = "Success! File Downloaded.";
+                status.style.color = "green";
             } catch (err) {
                 console.error(err);
-                msg.innerText = "Error: System failed to capture image.";
-                msg.style.color = "red";
+                status.innerText = "Failed to generate PDF.";
+                status.style.color = "red";
             } finally {
                 btn.disabled = false;
             }
