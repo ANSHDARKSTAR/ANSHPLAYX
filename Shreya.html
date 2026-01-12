@@ -3,174 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Declaration — Shreya Singh</title>
+    <title>Declaration Downloader</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
 
     <style>
-        :root {
-            --accent: #1a4fc2;
-            --card-bg: rgba(255, 255, 255, 0.25);
-            --border: rgba(255, 255, 255, 0.3);
-        }
-
+        :root { --accent: #1a4fc2; --glass: rgba(255, 255, 255, 0.2); }
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #9fd5ff 0%, #4a73ff 100%);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh;
         }
-
-        .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(15px);
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 30px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            text-align: center; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-
-        h2 { margin: 0 0 10px; color: #000; }
-        p { color: #333; margin-bottom: 25px; }
-
-        .btn-main {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.3s;
+        .btn {
+            background: var(--accent); color: white; border: none;
+            padding: 15px 25px; border-radius: 10px; font-weight: bold;
+            width: 100%; cursor: pointer; font-size: 16px;
         }
-
-        .btn-main:disabled { background: #ccc; cursor: not-allowed; }
-
-        #status {
-            margin-top: 15px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #0f3489;
+        .btn:disabled { background: #888; cursor: not-allowed; }
+        #msg { margin-top: 15px; font-size: 14px; font-weight: bold; }
+        
+        /* Hidden Template for PDF */
+        #pdf-template {
+            position: absolute; left: -9999px; width: 210mm; 
+            background: white; padding: 25mm; color: black; line-height: 2.2;
         }
-
-        /* PDF Area - This is what gets captured */
-        #pdf-hidden-template {
-            position: absolute;
-            left: -9999px;
-            width: 210mm;
-            background: white;
-            padding: 25mm;
-            color: black;
-            line-height: 2.2;
-        }
-
         .pdf-ref { text-align: center; font-size: 12px; margin-bottom: 20px; }
-        .pdf-title { text-align: center; text-decoration: underline; font-weight: bold; font-size: 22px; margin-bottom: 30px; }
+        .pdf-title { text-align: center; font-weight: bold; font-size: 22px; text-decoration: underline; margin-bottom: 30px; }
         .pdf-body { font-size: 18px; text-align: justify; }
-        .pdf-bold { font-weight: bold; border-bottom: 1px solid black; padding: 0 4px; }
-        .pdf-footer { margin-top: 60px; display: flex; justify-content: space-between; }
-        .pdf-sign { width: 140px; mix-blend-mode: multiply; }
+        .bold { font-weight: bold; border-bottom: 1px solid black; }
+        .footer { margin-top: 60px; display: flex; justify-content: space-between; }
+        .sign { width: 140px; mix-blend-mode: multiply; }
     </style>
 </head>
 <body>
 
-    <div class="glass-card">
-        <h2>घोषणा-पत्र</h2>
-        <p>श्रेया सिंह - Admission Document</p>
-        <button id="downloadBtn" class="btn-main" onclick="startGeneration()">Download PDF</button>
-        <div id="status">Ready</div>
+    <div class="container">
+        <h2>स्वप्रमाणित घोषणा-पत्र</h2>
+        <p>श्रेया सिंह</p>
+        <button id="mainBtn" class="btn" onclick="generatePDF()">Download PDF</button>
+        <div id="msg">Checking System...</div>
     </div>
 
-    <div id="pdf-hidden-template">
+    <div id="pdf-template">
         <div class="pdf-ref">संख्या- 874 / एक-9-2014-रा-9, दिनाँक 16 जून, 2014 का संलग्नक</div>
         <div class="pdf-title">स्वप्रमाणित घोषणा-पत्र</div>
-        
         <div class="pdf-body">
-            मैं, <span class="pdf-bold">श्रेया सिंह</span> पुत्री <span class="pdf-bold">संजय सिंह</span>,
-            उम्र <span class="pdf-bold">16</span> वर्ष, व्यवसाय <span class="pdf-bold">छात्रा</span>, 
-            निवासी ग्राम <span class="pdf-bold">अवरही कृतपुरा, कुंदूर</span> 
+            मैं, <span class="bold">श्रेया सिंह</span> पुत्री <span class="bold">संजय सिंह</span>,
+            उम्र <span class="bold">16</span> वर्ष, व्यवसाय <span class="bold">छात्रा</span>, 
+            निवासी ग्राम <span class="bold">अवरही कृतपुरा, कुंदूर</span> 
             प्रमाणित करते हुये घोषणा करती हूँ कि आवेदन पत्र में दिये गये विवरण/तथ्य मेरी व्यक्तिगत जानकारी एवं विश्वास में शुद्ध एवं सत्य हैं। मैं मिथ्या विवरणों/तथ्यों को देने के परिणामों से भली-भाँति अवगत हूँ। यदि आवेदन पत्र में दिये गये कोई विवरण/तथ्य मिथ्या पाये जाते हैं, तो मैं, मेरे विरूद्ध भा० द० वि० 1860 की धारा-199 व 200 एवं प्रभावी किसी अन्य विधि के अंतर्गत अभियोजन एवं दण्ड के लिये स्वयं उत्तरदायी होऊँगी।
         </div>
-
-        <div class="pdf-footer">
+        <div class="footer">
             <div style="text-align: left;">
-                <p>स्थान: <span class="pdf-bold">अवरही कृतपुरा</span></p>
-                <p>दिनाँक: <span class="pdf-bold">12-01-2026</span></p>
+                <p>स्थान: <span class="bold">अवरही कृतपुरा</span></p>
+                <p>दिनाँक: <span class="bold">12-01-2026</span></p>
             </div>
             <div style="text-align: left;">
-                <p>आवेदिका के हस्ताक्षर:<br>
-                    <img src="https://i.imgur.com/7pP7Nf4.png" class="pdf-sign">
+                <p>हस्ताक्षर:<br>
+                    <img src="https://i.imgur.com/7pP7Nf4.png" class="sign">
                 </p>
-                <p>नाम: <span class="pdf-bold">श्रेया सिंह</span></p>
+                <p>नाम: <span class="bold">श्रेया सिंह</span></p>
             </div>
         </div>
     </div>
 
     <script>
-        // IndexedDB Database Setup (No 5MB Limit)
-        const db = new Dexie("UserDocs");
-        db.version(1).stores({ files: "id" });
+        const msg = document.getElementById('msg');
+        const btn = document.getElementById('mainBtn');
 
-        async function startGeneration() {
-            const btn = document.getElementById('downloadBtn');
-            const status = document.getElementById('status');
-            
+        // Check if libraries are loaded every 1 second
+        const checkLibs = setInterval(() => {
+            if (window.jspdf && window.html2canvas && window.Dexie) {
+                msg.innerText = "System Ready";
+                msg.style.color = "green";
+                clearInterval(checkLibs);
+            } else {
+                msg.innerText = "Connecting to Library... Please wait";
+                msg.style.color = "orange";
+            }
+        }, 1000);
+
+        async function generatePDF() {
+            if (!window.jspdf || !window.html2canvas) {
+                alert("Library abhi bhi load nahi hui hai. Please page refresh karein aur internet check karein.");
+                return;
+            }
+
             btn.disabled = true;
-            status.innerText = "Processing PDF... Please wait.";
+            msg.innerText = "Generating PDF...";
 
             try {
-                // Ensure Libraries are loaded
-                if (typeof window.jspdf === 'undefined' || typeof html2canvas === 'undefined') {
-                    throw new Error("Libraries not loaded yet. Check internet.");
-                }
-
                 const { jsPDF } = window.jspdf;
-                const element = document.getElementById('pdf-hidden-template');
-
-                // Step 1: Capture HTML as Canvas
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    useCORS: true, // Crucial for external signature image
-                    allowTaint: true,
-                    logging: false
+                const element = document.getElementById('pdf-template');
+                
+                const canvas = await html2canvas(element, { 
+                    scale: 2, 
+                    useCORS: true,
+                    allowTaint: true
                 });
 
                 const imgData = canvas.toDataURL('image/png');
-                
-                // Step 2: Create PDF
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
 
-                // Step 3: Save to Database (IndexedDB)
-                const pdfBlob = pdf.output('blob');
-                await db.files.put({ id: "shreya_declaration", file: pdfBlob });
+                // Save to IndexedDB ( Dexie )
+                const db = new Dexie("AppDB");
+                db.version(1).stores({ docs: "id" });
+                const blob = pdf.output('blob');
+                await db.docs.put({ id: "shreya_form", file: blob });
 
-                // Step 4: Trigger Mobile Download
-                const url = URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'Shreya_Singh_Declaration.pdf';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                // Direct Download for Mobile
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = "Shreya_Declaration.pdf";
+                link.click();
 
-                status.innerText = "Downloaded & Saved Locally!";
-                status.style.color = "#155724";
-
+                msg.innerText = "Downloaded Successfully!";
             } catch (err) {
                 console.error(err);
-                status.innerText = "Error! Library not loaded. Check internet.";
-                status.style.color = "#721c24";
+                msg.innerText = "Error: System failed to capture image.";
+                msg.style.color = "red";
             } finally {
                 btn.disabled = false;
             }
